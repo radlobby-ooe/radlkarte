@@ -1,15 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang='de_AT'>
 <head>
     <title>Radlkarte - Entspannt durch Linz</title>
     <meta charset="utf-8" />
+    <meta name="description" content="Viele Wege führen zum Ziel. Finden Sie Ihren optimalen Weg durch die Stadt mit der Radlkarte der Radlobby Linz. Auf zu neuen Ufern, unbekannten Gegenden, und neuen Alternativen zu Ihren alltäglichen Routen!">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="manifest" href="./manifest.json">
 
     <meta property="og:title" content="Radlkarte Linz" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.radlkarte.at/linz" />
     <meta property="og:image" content="https://www.radlkarte.at/linz/assets/radlkarte-linz.png" />
-<!--    <script>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Radlkarte Linz">
+    <link rel="apple-touch-icon" href="../images/rl-logo-152x152.png">
+
+    <meta name="theme-color" content="#2F3BA2" />
+
+    <!--    <script>
         // google analytics
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -208,6 +220,15 @@
 
     <script>
         initMap('linz');
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then((reg) => {
+                    console.log('Service worker registered.', reg);
+                });
+            });
+        }
     </script>
 </body>
 </html>
