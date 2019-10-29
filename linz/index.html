@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang='de_AT'>
+<html lang="de">
 <head>
+    
     <title>Radlkarte - Entspannt durch Linz</title>
     <meta charset="utf-8" />
     <meta name="description" content="Viele Wege führen zum Ziel. Finden Sie Ihren optimalen Weg durch die Stadt mit der Radlkarte der Radlobby Linz. Auf zu neuen Ufern, unbekannten Gegenden, und neuen Alternativen zu Ihren alltäglichen Routen!">
@@ -18,8 +19,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Radlkarte Linz">
     <link rel="apple-touch-icon" href="../images/rl-logo-152x152.png">
-
-    <meta name="theme-color" content="#2F3BA2" />
 
     <!--    <script>
         // google analytics
@@ -40,50 +39,54 @@
         })(window,document,'//static.hotjar.com/c/hotjar-','.js?sv=');
     </script>-->
     
-    <script src="./js/polyfills.js"></script>
+    <script src="../js/polyfills.js"></script>
 
-    <script src="./js/leaflet-1.4.0/leaflet.js"></script>
+    <script src="../js/leaflet-1.4.0/leaflet.js"></script>
     <link rel="stylesheet" href="../js/leaflet-1.4.0/leaflet.css" />
     
-    <script src="./js/leaflet-sidebar-v2-3.0.6/leaflet-sidebar.min.js"></script>
-    <link rel="stylesheet" href="./js/leaflet-sidebar-v2-3.0.6/leaflet-sidebar.css"/>
+    <script src="../js/leaflet-sidebar-v2-3.0.6/leaflet-sidebar.min.js"></script>
+    <link rel="stylesheet" href="../js/leaflet-sidebar-v2-3.0.6/leaflet-sidebar.css"/>
     <!-- font awesome is required by sidebar & leaflet-locatecontrol-->
     <link rel="stylesheet" href="../css/font-awesome-4.7.0/css/font-awesome.min.css"/>
     
-    <script src="./js/leaflet-polylineDecorator-1.6.0/leaflet.polylineDecorator.js"></script>
+    <script src="../js/leaflet-polylineDecorator-1.6.0/leaflet.polylineDecorator.js"></script>
     
-    <script src="./js/leaflet-hash-1.0.1/leaflet-hash.min.js"></script>
+    <script src="../js/leaflet-hash-1.0.1/leaflet-hash.min.js"></script>
     
-    <script src="./js/leaflet-locatecontrol-0.66.1/L.Control.Locate.min.js"></script>
-    <link rel="stylesheet" href="./js/leaflet-locatecontrol-0.66.1/L.Control.Locate.css"/>
+    <script src="../js/leaflet-locatecontrol-0.66.1/L.Control.Locate.min.js"></script>
+    <link rel="stylesheet" href="../js/leaflet-locatecontrol-0.66.1/L.Control.Locate.css"/>
     
-    <script src="./js/leaflet-control-geocoder-1.5.8/Control.Geocoder.js"></script>
-    <link rel="stylesheet" href="./js/leaflet-control-geocoder-1.5.8/Control.Geocoder.css"/>
+    <script src="../js/leaflet-control-geocoder-1.5.8/Control.Geocoder.js"></script>
+    <link rel="stylesheet" href="../js/leaflet-control-geocoder-1.5.8/Control.Geocoder.css"/>
     
-    <script src="./js/turf-2017-02-16/turf.min.js"></script>
+    <script src="../js/turf-2017-02-16/turf.min.js"></script>
     
-    <script src="./js/jquery-3.3.1.min.js"></script>
+    <script src="../js/jquery-3.3.1.min.js"></script>
     
-    <link href="./css/museo-500/style.css" rel="stylesheet" type="text/css"/>
+    <link href="../css/museo-500/style.css" rel="stylesheet" type="text/css"/>
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,400italic,700' rel='stylesheet' type='text/css'/>
     
-    <script src="./radlkarte.js"></script>
-    <link rel="stylesheet" href="./radlkarte.css" />
-    <link rel="icon" type="image/x-icon" href="./css/favicon.ico" />
+    <script src="../radlkarte.js"></script>
+    <link rel="stylesheet" href="../radlkarte.css" />
+    <link rel="icon" type="image/x-icon" href="../css/favicon.ico" />
 </head>
 
 <body>
     <div id="map"></div>
     <div id="radlobby-logo">
-        <a href="http://radlobby.at/linz" target="_blank"><img src="./css/radlobby.png" alt="Radlobby Linz" /></a>
+        <a href="http://radlobby.at/linz" target="_blank"><img src="../css/radlobby.png" alt="Radlobby Linz" /></a>
+    </div>
+    <div id="offline-warning" class="offline">
+        <b>Es besteht gerade keine Internetverbindung.</b>
+        <p>Die Routen werden weiter angezeigt, die Hintergrundkarte ist nur eingeschränkt verfügbar.</p>
     </div>
     <div id="sidebar" class="leaflet-sidebar">
         <!-- Nav tabs -->
         <div class="leaflet-sidebar-tabs">
             <ul role="tablist">
-                <li class="active"><a href="#radlkarte_legend" role="tab"><i class="fa fa-align-justify"></i></a></li>
-                <li><a href="#radlkarte_description" role="tab"><i class="fa fa-info-circle"></i></a></li>
-                <li><a href="#radlkarte_contact" role="tab"><i class="fa fa-envelope"></i></a></li>
+                <li class="active"><a href="#radlkarte_legend" role="tab"><i title="Legende" class="fa fa-align-justify"></i></a></li>
+                <li><a href="#radlkarte_description" role="tab"><i title="Beschreibung" class="fa fa-info-circle"></i></a></li>
+                <li><a href="#radlkarte_contact" role="tab"><i title="Kontakt" class="fa fa-envelope"></i></a></li>
             </ul>
         </div>
 
@@ -223,7 +226,7 @@
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./service-worker.js')
+            navigator.serviceWorker.register('../service-worker.js')
                 .then((reg) => {
                     console.log('Service worker registered.', reg);
                 });

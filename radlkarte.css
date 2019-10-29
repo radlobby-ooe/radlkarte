@@ -12,6 +12,22 @@ html, body, #map {
     bottom: 10px;
     z-index: 900;
 }
+#offline-warning {
+    padding: 20px;
+    position: fixed;
+    right: 25%;
+    left: 25%;
+    width: 50%;
+    top: 0px;
+    z-index: 900;
+    background-color: rgba(255, 255, 255, 0.3);
+    
+
+    text-align: center;
+}
+#offline-warning b {
+    color: #FF6600;
+}
 #radlobby-logo img {
     padding: 5px;
     width: 150px;
@@ -27,7 +43,7 @@ html, body, #map {
     background-color: #fff;
 }
 
-p, h3, h4, li {
+p, h3, h4, li, b {
     font-family: Roboto, arial, sans-serif;
     color: #004B67;
 }

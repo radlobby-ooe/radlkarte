@@ -138,8 +138,20 @@ function loadGeoJson(file) {
                 rkGlobal.styleFunction();
                 $(this).dequeue();
             });
+
+            checkOnlineStatus();
         });
     });
+}
+
+function checkOnlineStatus() {
+    if(navigator.onLine === false) {
+        $('.only-online').hide();
+        $('.offline').show();
+    } else {
+        $('.offline').hide();
+        $('.only-online').show();
+    }
 }
 
 
@@ -262,9 +274,10 @@ function initMap(location) {
     rkGlobal.leafletMap = L.map('map', { 'zoomControl' : false } ).setView(configuration.latlong, 14);
     new L.Hash(rkGlobal.leafletMap);
     
-    var imageUrl = './Verkehrsstadtplan-2012.png',
-    imageBounds = [[48.149263332761116, 14.191097334683427], [48.351366276927756, 14.388247190356662]];
-L.imageOverlay(imageUrl, imageBounds).addTo(rkGlobal.leafletMap);
+    var imageUrl = './fallback-map.png',
+    // down left up right
+    imageBounds = [[48.246, 14.228], [48.330, 14.354]];
+L.imageOverlay(imageUrl, imageBounds, {opacity: 0.5}).addTo(rkGlobal.leafletMap);
 
     var mapboxLowZoom = L.tileLayer('https://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token={accessToken}', {
         minZoom: 0,

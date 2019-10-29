@@ -18,14 +18,15 @@
 'use strict';
 
 // CODELAB: Update cache names any time any of the cached files change.
-const CACHE_NAME = 'static-cache-v3';
+const CACHE_NAME = 'static-cache-v4';
 const DATA_CACHE_NAME = 'data-cache-v2';
 
 // CODELAB: Add list of files to cache here.
 const FILES_TO_CACHE = [
-    './offline.html',
+
     './index.html',
-    './linz.html',
+    './linz/index.html',
+    './linz/fallback-map.png',
     './radlkarte.css',
     './radlkarte.js',
     './manifest.json',
@@ -54,7 +55,7 @@ self.addEventListener('install', (evt) => {
   // CODELAB: Precache static resources here.
   evt.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[ServiceWorker] Pre-caching offline page');
+      console.log('[ServiceWorker] Pre-caching offline pages');
       return cache.addAll(FILES_TO_CACHE);
     })
 );
