@@ -5,6 +5,8 @@
     <title>Radlkarte - Entspannt durch Wien</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="manifest" href="./manifest.json">
     
 <!--    <script>
         // google analytics
@@ -205,6 +207,15 @@
 
     <script>
         initMap('vienna');
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+            navigator.serviceWorker.register('../service-worker.js')
+                .then(function (reg) {
+                    console.log('Service worker registered.', reg);
+                });
+            });
+        }
     </script>
 </body>
 </html>

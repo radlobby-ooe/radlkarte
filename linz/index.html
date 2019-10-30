@@ -225,9 +225,9 @@
         initMap('linz');
 
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
+            window.addEventListener('load', function() {
             navigator.serviceWorker.register('../service-worker.js')
-                .then((reg) => {
+                .then(function (reg) {
                     console.log('Service worker registered.', reg);
                 });
             });
