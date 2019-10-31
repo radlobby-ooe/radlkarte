@@ -4,6 +4,7 @@ var rkGlobal = {}; // global variable for radlkarte properties / data storage
 rkGlobal.leafletMap = undefined; // the main leaflet map
 rkGlobal.leafletLayersControl = undefined; // leaflet layer-control
 rkGlobal.segmentsPS = []; // matrix holding all segments (two dimensions: priority & stressfulness)
+rkGlobal.segmentsAttr = {'unpaved': [[], [], []], 'steep': [[], [], []]}; // object holding attribute segments by priority
 rkGlobal.markerLayerLowZoom = L.layerGroup(); // layer group holding all icons to be viewed at lower zoom levels
 rkGlobal.markerLayerHighZoom = L.layerGroup(); // layer group holding all icons to be viewed at higher zoom levels
 rkGlobal.priorityStrings = ["Überregional", "Regional", "Lokal"]; // names of all different levels of priorities (ordered descending by priority)
@@ -93,6 +94,14 @@ function loadGeoJson(file) {
             if(geojson.properties.oneway == 'yes') {
                 rkGlobal.segmentsPS[p][s].decorators.push(turf.flip(geojson).geometry.coordinates);
             }
+
+            if(geojson.properties.unpaved == 'yes') {
+                rkGlobal.segmentsAttr.unpaved[p].push(geojson);
+            }
+
+            if(geojson.properties.steep == 'yes') {
+                rkGlobal.segmentsAttr.steep[p].push(geojson);
+            }
             
             ++goodCount;
         }
@@ -113,6 +122,16 @@ function loadGeoJson(file) {
                     rkGlobal.segmentsPS[p][s].decorators = undefined;
                 }
                 // discard properties of multilinestringfeature? no longer needed.
+            }
+        }
+
+        for(var key of Object.keys(rkGlobal.segmentsAttr)) {
+            for(p in rkGlobal.segmentsAttr[key]) {
+                var multilinestringfeature = turf.combine(turf.featureCollection(rkGlobal.segmentsAttr[key][p]));
+                rkGlobal.segmentsAttr[key][p] = L.geoJSON(multilinestringfeature);
+                rkGlobal.leafletMap.addLayer(rkGlobal.segmentsAttr[key][p]);
+                console.log('added layer : ' + p + key + rkGlobal.segmentsAttr[key][p].length);
+                console.log( multilinestringfeature);
             }
         }
         
@@ -189,6 +208,18 @@ function updateStylesWithStyleA() {
             }
         }
     }
+
+    for(var key of Object.keys(rkGlobal.segmentsAttr)) {
+        for(priority in rkGlobal.segmentsAttr[key]) {
+            var lineStyle = getLineStringStyleWithColorDefiningStressfulness(priority, 0)
+            lineStyle.color = key === 'unpaved' ? '#000000' : '#FF0000';
+            lineStyle.weight = lineStyle.weight * 2;
+            lineStyle.opacity = 0.3;
+            lineStyle.dashArray = '1 1';
+            rkGlobal.segmentsAttr[key][priority].setStyle(lineStyle);
+        }
+    }
+
     if(zoom >= rkGlobal.styleAIconZoomThresholds[1]) {
         rkGlobal.leafletMap.removeLayer(rkGlobal.markerLayerLowZoom);
         rkGlobal.leafletMap.addLayer(rkGlobal.markerLayerHighZoom);
