@@ -49,6 +49,12 @@ way[fixme] {
     casing-opacity: 0.5;
 }
 
+way[winter_service=yes] {
+    casing-width: 7;
+    casing-color: #00F;
+    casing-opacity: 0.5;
+}
+
 node[dismount=yes] {
     icon-image: "presets/vehicle/restriction/bicycle.svg";
     text: auto;
