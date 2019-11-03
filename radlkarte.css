@@ -13,21 +13,30 @@ html, body, #map {
     z-index: 900;
 }
 #offline-warning {
-    padding: 20px;
+    padding: 20px 10px 10px 10px;
     position: fixed;
-    right: 25%;
-    left: 25%;
+    right: 20px;
+    left: 350px;
     width: 50%;
     top: 0px;
     z-index: 900;
     background-color: rgba(255, 255, 255, 0.3);
-    
+    font-size: 0.8em;
+    display: none;
 
     text-align: center;
 }
 #offline-warning b {
     color: #FF6600;
 }
+
+@media (max-width: 600px) {
+    #offline-warning {
+        left: 50px;
+        width: 70%;
+    }
+}
+
 #radlobby-logo img {
     padding: 5px;
     width: 150px;
