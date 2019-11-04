@@ -314,7 +314,6 @@ function initMap(location) {
     rkGlobal.leafletMap.createPane('fallbackimage');
     rkGlobal.leafletMap.getPane('fallbackimage').style.zIndex = 50;
     L.imageOverlay(imageUrl, imageBounds, {
-        opacity: 0.5,
         pane: 'fallbackimage',
         attribution: 'Diese Karte wurde von Inkatlas.com erstellt. Copyright OpenStreetMap contributors (openstreetmap.org), Inkatlas.'
     }).addTo(rkGlobal.leafletMap);
