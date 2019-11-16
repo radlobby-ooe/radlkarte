@@ -18,7 +18,7 @@
 'use strict';
 
 // CODELAB: Update cache names any time any of the cached files change.
-const CACHE_NAME = 'static-cache-v6';
+const CACHE_NAME = 'static-cache-v8';
 const DATA_CACHE_NAME = 'data-cache-v2';
 
 // CODELAB: Add list of files to cache here.
@@ -47,7 +47,19 @@ const FILES_TO_CACHE = [
     "./css/museo-500/style.css",
     'https://fonts.googleapis.com/css?family=Roboto:400,400italic,700',
     "./css/favicon.ico",
-    './Verkehrsstadtplan-2012.png'
+    "./css/dismount.png",
+    "./css/dismount.svg",
+    "./css/nocargo.png",
+    "./css/nocargo.svg",
+    "./css/nocargo+dismount.png",
+    "./css/nocargo+dismount.svg",
+    "./css/reddot.png",
+    "./css/reddot.svg",
+    "./css/nocargo+dismount.png",
+    "./css/radlobby-wien.png",
+    "./css/nocargo+dismount.png",
+    "./css/radlobby.png",
+    './fallback-map.png'
 ];
 
 self.addEventListener('install', (evt) => {
