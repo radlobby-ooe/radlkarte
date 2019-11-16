@@ -279,10 +279,6 @@ function initMap(location) {
     rkGlobal.leafletMap = L.map('map', { 'zoomControl' : false } ).setView(configuration.latlong, 14);
     new L.Hash(rkGlobal.leafletMap);
     
-//     var imageUrl = './fallback-map.png',
-//     // down left up right
-//     imageBounds = [[48.246, 14.228], [48.330, 14.354]];
-// L.imageOverlay(imageUrl, imageBounds, {opacity: 0.5}).addTo(rkGlobal.leafletMap);
 
     var mapboxLowZoom = L.tileLayer('https://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token={accessToken}', {
         minZoom: 0,
@@ -311,6 +307,24 @@ function initMap(location) {
         attribution: 'map data &copy; <a href="https://openstreetmap.org" target="_blank">OpenStreetMap</a> contributors, imagery &copy; <a href="https://www.thunderforest.com" target="_blank">Thunderforest</a>'
     });
     var empty = L.tileLayer('', {attribution: ''});
+
+    var imageUrl = './fallback-map.png';
+    // down right up left
+    var imageBounds = null;
+    if(location == "linz") {
+        imageBounds = [[48.240, 14.2386], [48.3462, 14.3525]];
+    } else {
+        imageBounds = [[48.076, 16.683], [48.3299, 16.1714]];
+    }
+
+    rkGlobal.leafletMap.createPane('fallbackimage');
+    rkGlobal.leafletMap.getPane('fallbackimage').style.zIndex = 50;
+    L.imageOverlay(imageUrl, imageBounds, {
+        // opacity: 0.8,
+        pane: 'fallbackimage',
+        attribution: 'Diese Karte wurde von Inkatlas.com erstellt. Copyright OpenStreetMap contributors (openstreetmap.org), Inkatlas.'
+    }).addTo(rkGlobal.leafletMap);
+
 
     /*var mapboxStreets = L.tileLayer('https://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token={accessToken}', {
         minZoom: 0,
