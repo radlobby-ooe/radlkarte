@@ -47,7 +47,19 @@ const FILES_TO_CACHE = [
     "./css/museo-500/style.css",
     'https://fonts.googleapis.com/css?family=Roboto:400,400italic,700',
     "./css/favicon.ico",
-    './Verkehrsstadtplan-2012.png'
+    "./css/dismount.png",
+    "./css/dismount.svg",
+    "./css/nocargo.png",
+    "./css/nocargo.svg",
+    "./css/nocargo+dismount.png",
+    "./css/nocargo+dismount.svg",
+    "./css/reddot.png",
+    "./css/reddot.svg",
+    "./css/nocargo+dismount.png",
+    "./css/radlobby-wien.png",
+    "./css/nocargo+dismount.png",
+    "./css/radlobby.png",
+    './fallback-map.png'
 ];
 
 self.addEventListener('install', (evt) => {

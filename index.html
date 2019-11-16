@@ -1,13 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
 
     <title>Radlkarte - Entspannt durch Wien</title>
     <meta charset="utf-8" />
+    <meta name="description" content="Viele Wege führen zum Ziel. Finden Sie Ihren optimalen Weg durch die Stadt mit der Radlkarte der Radlobby Wien. Auf zu neuen Ufern, unbekannten Gegenden, und neuen Alternativen zu Ihren alltäglichen Routen!">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="manifest" href="./manifest.json">
     
+    <meta property="og:title" content="Radlkarte Wien" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.radlkarte.at" />
+    <!-- TODO: images for vienna & linz -->
+    <meta property="og:image" content="https://www.radlkarte.at/linz/assets/radlkarte-linz.png" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Radlkarte Linz">
+    <link rel="apple-touch-icon" href="../images/rl-logo-152x152.png">
+
 <!--    <script>
         // google analytics
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -64,13 +77,17 @@
     <div id="radlobby-logo">
         <a href="http://radlobby.at/wien" target="_blank"><img src="css/radlobby.png" alt="Radlobby Wien" /></a>
     </div>
+    <div id="offline-warning" class="offline">
+        <b>Es besteht gerade keine Internetverbindung.</b>
+        <p>Die Routen werden weiter angezeigt, die Hintergrundkarte ist nur eingeschränkt verfügbar.</p>
+    </div>
     <div id="sidebar" class="leaflet-sidebar">
         <!-- Nav tabs -->
         <div class="leaflet-sidebar-tabs">
             <ul role="tablist">
-                <li class="active"><a href="#radlkarte_legend" role="tab"><i class="fa fa-align-justify"></i></a></li>
-                <li><a href="#radlkarte_description" role="tab"><i class="fa fa-info-circle"></i></a></li>
-                <li><a href="#radlkarte_contact" role="tab"><i class="fa fa-envelope"></i></a></li>
+                <li class="active"><a href="#radlkarte_legend" role="tab"><i title="Legende" class="fa fa-align-justify"></i></a></li>
+                <li><a href="#radlkarte_description" role="tab"><i title="Beschreibung" class="fa fa-info-circle"></i></a></li>
+                <li><a href="#radlkarte_contact" role="tab"><i title="Kontakt" class="fa fa-envelope"></i></a></li>
             </ul>
         </div>
 
@@ -210,7 +227,7 @@
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-            navigator.serviceWorker.register('../service-worker.js')
+            navigator.serviceWorker.register('./service-worker.js')
                 .then(function (reg) {
                     console.log('Service worker registered.', reg);
                 });

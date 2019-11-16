@@ -308,12 +308,19 @@ function initMap(location) {
     });
     var empty = L.tileLayer('', {attribution: ''});
 
-    var imageUrl = './fallback-map.png',
-    // down left up right
-    imageBounds = [[48.240, 14.2386], [48.3462, 14.3525]];
+    var imageUrl = './fallback-map.png';
+    // down right up left
+    var imageBounds = null;
+    if(location == "linz") {
+        imageBounds = [[48.240, 14.2386], [48.3462, 14.3525]];
+    } else {
+        imageBounds = [[48.076, 16.683], [48.3299, 16.1714]];
+    }
+
     rkGlobal.leafletMap.createPane('fallbackimage');
     rkGlobal.leafletMap.getPane('fallbackimage').style.zIndex = 50;
     L.imageOverlay(imageUrl, imageBounds, {
+        // opacity: 0.8,
         pane: 'fallbackimage',
         attribution: 'Diese Karte wurde von Inkatlas.com erstellt. Copyright OpenStreetMap contributors (openstreetmap.org), Inkatlas.'
     }).addTo(rkGlobal.leafletMap);
