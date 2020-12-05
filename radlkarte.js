@@ -87,6 +87,10 @@ function updateRadlkarteRegion(region) {
 	loadGeoJson(configuration.geoJsonFile);
 	rkGlobal.geocodingControl.options.geocoder.options.geocodingQueryParams.bounds = configuration.geocodingBounds;
 
+	if (region == 'linz') {
+		loadProblemstellenGeojson();
+	}
+
 	// virtual page hit in google analytics
 	ga('set', 'page', '/' + region);
 	ga('send', 'pageview');
