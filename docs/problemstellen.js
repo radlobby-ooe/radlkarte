@@ -82,7 +82,9 @@ function updateProblemstellenStyles() {
 		};
 		const text = texts[rkGlobal.problemstellenSegments[i].properties.type];
 
-		var description = rkGlobal.problemstellenSegments[i].properties && rkGlobal.problemstellenSegments[i].properties.description;
+		let von = rkGlobal.problemstellenSegments[i].properties.LueckeVon;
+		let bis = rkGlobal.problemstellenSegments[i].properties.LueckeBis;
+		var description = "Zwischen " + von + " und "+ bis;
 
 		line.bindPopup("<b>" + text + ": </b><br/>" + description + "<br/><img src='css/luecke.png' style='max-width: 200px;max-height: 200px;'/>",
 			{
@@ -239,7 +241,7 @@ function loadProblemstellenGeojson(problemStellenFile) {
             }
 
             if (geojson.properties.type == "luecke") {
-                var g1 = createProblemstellePoint(geojson, geojson.geometry.coordinates[0]);
+                var g1 = createProblemstellePoint(geojson, geojson.geometry.coordinates[Math.floor(geojson.geometry.coordinates.length/2)]);
                 let markerLayers = createProblemstellenMarkerLayersIncludingPopup(g1);
                 if (markerLayers != null) {
                     rkGlobal.markerLayerLowZoom.addLayer(markerLayers.lowZoom);
@@ -249,7 +251,7 @@ function loadProblemstellenGeojson(problemStellenFile) {
                 markerLayers.highZoom.on('click', onMarkerClick);
                 markerLayers.lowZoom.on('mouseover', onMarkerMouseOver);
                 markerLayers.highZoom.on('mouseout', onMarkerMouseOut);
-                var g2 = createProblemstellePoint(geojson, geojson.geometry.coordinates[geojson.geometry.coordinates.length - 1]);
+                /*var g2 = createProblemstellePoint(geojson, geojson.geometry.coordinates[geojson.geometry.coordinates.length - 1]);
                 let markerLayers2 = createProblemstellenMarkerLayersIncludingPopup(g2);
                 if (markerLayers2 != null) {
                     rkGlobal.markerLayerLowZoom.addLayer(markerLayers2.lowZoom);
@@ -258,7 +260,7 @@ function loadProblemstellenGeojson(problemStellenFile) {
                 markerLayers2.lowZoom.on('click', onMarkerClick);
                 markerLayers2.highZoom.on('click', onMarkerClick);
                 markerLayers2.lowZoom.on('mouseover', onMarkerMouseOver);
-                markerLayers2.highZoom.on('mouseout', onMarkerMouseOut);
+                markerLayers2.highZoom.on('mouseout', onMarkerMouseOut);*/
             }
             rkGlobal.problemstellenSegments.push(geojson);
 
