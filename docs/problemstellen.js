@@ -84,7 +84,9 @@ function updateProblemstellenStyles() {
 
 		let von = rkGlobal.problemstellenSegments[i].properties.LueckeVon;
 		let bis = rkGlobal.problemstellenSegments[i].properties.LueckeBis;
-		var description = "Zwischen " + von + " und "+ bis;
+        let richtung = rkGlobal.problemstellenSegments[i].properties.LueckeFahrtrichtung;
+        let abk = rkGlobal.problemstellenSegments[i].properties.LueckeAbk;
+		var description = "Zwischen " + von + " und "+ bis+ "<br/>Fahrtrichtung: "+richtung+"<br/>Geforderte Radinfrastruktur: "+abk;
 
 		line.bindPopup("<b>" + text + ": </b><br/>" + description + "<br/><img src='css/luecke.png' style='max-width: 200px;max-height: 200px;'/>",
 			{
