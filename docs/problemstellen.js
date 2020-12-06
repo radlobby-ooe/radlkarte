@@ -3,7 +3,7 @@
 var problemstellenGroup = null;
 
 const lueckeLineStyleDefault = {
-    color: '#990000',
+    color: '#991913',
     opacity: '1',
     weight: 4
 };
@@ -11,13 +11,13 @@ const lueckeLineStyleDefault = {
 const lueckeLineStyleHighlight = {
     color: '#ee0000',
     opacity: '1',
-    weight: 6
+    weight: 8
 };
 
 var suppressMouseOverHighlight = false;
 
 function highlightLine(key) {
-    console.log("Highlighting line " + key);
+    //console.log("Highlighting line " + key);
     problemstellenGroup.eachLayer(function (layer) {
         if (layer.key === key) {
             layer.setStyle(lueckeLineStyleHighlight);
@@ -26,7 +26,7 @@ function highlightLine(key) {
 }
 
 function unhighlightLine(key) {
-    console.log("Unhighlighting line " + key);
+    //console.log("Unhighlighting line " + key);
     problemstellenGroup.eachLayer(function (layer) {
         if (layer.key === key) {
             layer.setStyle(lueckeLineStyleDefault);
@@ -65,50 +65,46 @@ function updateProblemstellenStyles() {
                 layer.setStyle(lueckeLineStyleDefault);
             }
         });
-        line.on('click', function (e) {
-            console.log("Open popup!");
-        });
 
-        // TODO align with other popup
-		const icons = {
-			danger: 'achtung.svg',
-			slow: 'snail.svg',
-			luecke: 'css/luecke.png'
-		};
-		const iconUrl = icons[rkGlobal.problemstellenSegments[i].properties.type];
+        const icons = {
+            danger: 'achtung.svg',
+            slow: 'snail.svg',
+            luecke: 'css/luecke.png'
+        };
+        const iconUrl = icons[rkGlobal.problemstellenSegments[i].properties.type];
 
-		const texts = {
-			luecke: 'Lücke'
-		};
-		const text = texts[rkGlobal.problemstellenSegments[i].properties.type];
+        const texts = {
+            luecke: 'Lücke'
+        };
+        const text = texts[rkGlobal.problemstellenSegments[i].properties.type];
 
-		let von = rkGlobal.problemstellenSegments[i].properties.LueckeVon;
-		let bis = rkGlobal.problemstellenSegments[i].properties.LueckeBis;
+        let von = rkGlobal.problemstellenSegments[i].properties.LueckeVon;
+        let bis = rkGlobal.problemstellenSegments[i].properties.LueckeBis;
         let richtung = rkGlobal.problemstellenSegments[i].properties.LueckeFahrtrichtung;
         let abk = rkGlobal.problemstellenSegments[i].properties.LueckeAbk;
-		var description = "Zwischen " + von + " und "+ bis+ "<br/>Fahrtrichtung: "+richtung+"<br/>Geforderte Radinfrastruktur: "+abk;
+        var description = "Zwischen " + von + " und " + bis + "<br/>Fahrtrichtung: " + richtung + "<br/>Geforderte Radinfrastruktur: " + abk;
 
-		line.bindPopup("<b>" + text + ": </b><br/>" + description + "<br/><img src='css/luecke.png' style='max-width: 200px;max-height: 200px;'/>",
-			{
-				autoClose: false,
-				closeOnClick: true,
-				closeButton: true,
-				closeOnEscapeKey: true
-			}).on('popupopen', function (popup) {
-			highlightLine(popup.sourceTarget.feature.properties.key);
-			suppressMouseOverHighlight = true;
-			console.log("popup opened !", popup);
-		}).on('popupclose', function (popup) {
-			unhighlightLine(popup.sourceTarget.feature.properties.key);
-			suppressMouseOverHighlight = false;
-			console.log("popup closed !", popup);
-		});
+        line.bindPopup("<b>" + text + ": </b><br/>" + description + "<br/><img src='css/luecke.png' style='max-width: 200px;max-height: 200px;'/>",
+            {
+                autoClose: false,
+                closeOnClick: true,
+                closeButton: true,
+                closeOnEscapeKey: true
+            }).on('popupopen', function (popup) {
+            highlightLine(popup.sourceTarget.feature.properties.key);
+            suppressMouseOverHighlight = true;
+            //console.log("popup opened !", popup);
+        }).on('popupclose', function (popup) {
+            unhighlightLine(popup.sourceTarget.feature.properties.key);
+            suppressMouseOverHighlight = false;
+            //console.log("popup closed !", popup);
+        });
     }
 
 }
 
 function createProblemstellenMarkerLayersIncludingPopup(geojsonPoint) {
-    console.log(geojsonPoint);
+    //console.log(geojsonPoint);
     // var icons = getIcons(geojsonPoint.properties);
     // if(icons == null) {
     // 	return undefined;
@@ -142,38 +138,23 @@ function createProblemstellenMarkerLayersIncludingPopup(geojsonPoint) {
         highZoom: marker,
     };
 
-	markers.lowZoom.bindPopup("<b>" + text + ": </b><br/>" + description + "<br/><img src='css/luecke.png' style='max-width: 200px;max-height: 200px;'/>",
-		{
-			autoClose: false,
-			closeOnClick: true,
-			closeButton: true,
-			closeOnEscapeKey: true
-		}).on('popupopen', function (popup) {
-		highlightLine(popup.sourceTarget.options.key);
-		suppressMouseOverHighlight = true;
-		console.log("popup opened !", popup);
-	}).on('popupclose', function (popup) {
-		unhighlightLine(popup.sourceTarget.options.key);
-		suppressMouseOverHighlight = false;
-		console.log("popup closed !", popup);
-	});
-
-    markers.highZoom.bindPopup("<b>" + text + ": </b><br/>" + description + "<br/><img src='css/luecke.png' style='max-width: 200px;max-height: 200px;'/>",
-        {
-            autoClose: false,
-            closeOnClick: true,
-            closeButton: true,
-            closeOnEscapeKey: true
-        }).on('popupopen', function (popup) {
-        highlightLine(popup.sourceTarget.options.key);
-        suppressMouseOverHighlight = true;
-        console.log("popup opened !", popup);
-    }).on('popupclose', function (popup) {
-        unhighlightLine(popup.sourceTarget.options.key);
-        suppressMouseOverHighlight = false;
-        console.log("popup closed !", popup);
-    });
-
+    /*
+        markers.highZoom.bindPopup("<b>" + text + ": </b><br/>" + description + "<br/><img src='css/luecke.png' style='max-width: 200px;max-height: 200px;'/>",
+            {
+                autoClose: false,
+                closeOnClick: true,
+                closeButton: true,
+                closeOnEscapeKey: true
+            }).on('popupopen', function (popup) {
+            highlightLine(popup.sourceTarget.options.key);
+            suppressMouseOverHighlight = true;
+            console.log("popup opened !", popup);
+        }).on('popupclose', function (popup) {
+            unhighlightLine(popup.sourceTarget.options.key);
+            suppressMouseOverHighlight = false;
+            console.log("popup closed !", popup);
+        });
+    */
     return markers;
 }
 
@@ -187,7 +168,14 @@ function createProblemstellePoint(geojson, coordinates) {
 
 
 function onMarkerClick(e) {
-//	highlightLine(e.sourceTarget.options.key);
+    let key = e.sourceTarget.options.key;
+    console.log("Opening popup for line " + key);
+    problemstellenGroup.eachLayer(function (layer) {
+        if (layer.key === key) {
+            console.log(layer);
+            layer.fireEvent('click');
+        }
+    });
 }
 
 function onMarkerMouseOver(e) {
@@ -231,19 +219,16 @@ function loadProblemstellenGeojson(problemStellenFile) {
                     if (markerLayers != null) {
                         rkGlobal.markerLayerLowZoom.addLayer(markerLayers.lowZoom);
                         rkGlobal.markerLayerHighZoom.addLayer(markerLayers.highZoom);
-                        //++poiCount;
                     } else {
-                        //++ignoreCount;
                     }
                 } else {
                     console.warn("ignoring invalid object (not a proper linestring feature): " + JSON.stringify(geojson));
-                    //++ignoreCount;
                 }
                 continue;
             }
 
             if (geojson.properties.type == "luecke") {
-                var g1 = createProblemstellePoint(geojson, geojson.geometry.coordinates[Math.floor(geojson.geometry.coordinates.length/2)]);
+                var g1 = createProblemstellePoint(geojson, geojson.geometry.coordinates[Math.floor(geojson.geometry.coordinates.length / 2)]);
                 let markerLayers = createProblemstellenMarkerLayersIncludingPopup(g1);
                 if (markerLayers != null) {
                     rkGlobal.markerLayerLowZoom.addLayer(markerLayers.lowZoom);
@@ -253,63 +238,10 @@ function loadProblemstellenGeojson(problemStellenFile) {
                 markerLayers.highZoom.on('click', onMarkerClick);
                 markerLayers.lowZoom.on('mouseover', onMarkerMouseOver);
                 markerLayers.highZoom.on('mouseout', onMarkerMouseOut);
-                /*var g2 = createProblemstellePoint(geojson, geojson.geometry.coordinates[geojson.geometry.coordinates.length - 1]);
-                let markerLayers2 = createProblemstellenMarkerLayersIncludingPopup(g2);
-                if (markerLayers2 != null) {
-                    rkGlobal.markerLayerLowZoom.addLayer(markerLayers2.lowZoom);
-                    rkGlobal.markerLayerHighZoom.addLayer(markerLayers2.highZoom);
-                }
-                markerLayers2.lowZoom.on('click', onMarkerClick);
-                markerLayers2.highZoom.on('click', onMarkerClick);
-                markerLayers2.lowZoom.on('mouseover', onMarkerMouseOver);
-                markerLayers2.highZoom.on('mouseout', onMarkerMouseOut);*/
             }
             rkGlobal.problemstellenSegments.push(geojson);
 
-            //geojson.properties.priority=0;
-            //geojson.properties.stress=0;
-
-            // var priority = parseInt(geojson.properties.priority, 10);
-            // var stress = parseInt(geojson.properties.stress, 10);
-            // if(isNaN(priority) || isNaN(stress)) {
-            // 	console.warn("ignoring invalid object (priority / stress not set): " + JSON.stringify(geojson));
-            // 	++ignoreCount;
-            // 	continue;
-            // }
-
-            // // collect linestrings by category
-            // addSegmentToObject(categorizedLinestrings, geojson);
-
-            // ++goodCount;
         }
-        // debug("processed " + goodCount + " valid LineString features, " + poiCount + " Point features, and " + ignoreCount + " ignored features.");
-
-        // merge geojson linestring features
-        // with the same properties into a single multilinestring
-        // and then put them in a leaflet layer
-        // for(const key of Object.keys(categorizedLinestrings)) {
-        // 	var multilinestringFeatures = turf.combine(turf.featureCollection(categorizedLinestrings[key]));
-        // 	var properties = JSON.parse(key);
-        // 	multilinestringFeatures.properties = properties;
-
-        // 	var decoratorCoordinates = [];
-        // 	for(const linestring of categorizedLinestrings[key]) {
-        // 		decoratorCoordinates.push(turf.flip(linestring).geometry.coordinates);
-        // 	}
-
-        // 	// separate panes to allow setting zIndex, which is not possible on
-        // 	// the geojson layers themselves
-        // 	// see https://stackoverflow.com/q/39767499/1648538
-        // 	rkGlobal.leafletMap.createPane(key);
-        // 	rkGlobal.leafletMap.getPane(key).style.zIndex = getSegmentZIndex(properties);
-        // 	rkGlobal.segments[key] = {
-        // 		'lines': L.geoJSON(multilinestringFeatures, {pane: key}),
-        // 		'steepLines': properties.steep === 'yes' ? L.geoJSON(multilinestringFeatures, {pane: key}) : undefined,
-        // 		'decorators': L.polylineDecorator(decoratorCoordinates)
-        // 	};
-        // }
-
-        // adds layers (if the zoom levels requires it)
         rkGlobal.styleFunction();
 
     });
