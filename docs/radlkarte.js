@@ -6,7 +6,6 @@ rkGlobal.hash = undefined; // leaflet-hash object, contains the currently active
 rkGlobal.leafletLayersControl = undefined; // leaflet layer-control
 rkGlobal.geocodingControl = undefined;
 rkGlobal.segments = {}; // object holding all linestring and decorator layers (the key represents the properties)
-rkGlobal.problemstellenSegments = []; // array holding all problemStellen linestrings
 rkGlobal.markerLayerLowZoom = L.layerGroup(); // layer group holding all icons to be viewed at lower zoom levels
 rkGlobal.markerLayerHighZoom = L.layerGroup(); // layer group holding all icons to be viewed at higher zoom levels
 rkGlobal.priorityStrings = ["Überregional", "Regional", "Lokal"]; // names of all different levels of priorities (ordered descending by priority)
@@ -15,11 +14,7 @@ rkGlobal.debug = true; // debug output will be logged if set to true
 rkGlobal.fullWidthThreshold = 768;
 
 // style: stress = color, priority = line width
-rkGlobal.styleFunction = function func() {
-	updateStyles();
-	updateProblemstellenStyles();
-};
-
+rkGlobal.styleFunction = updateStyles;
 rkGlobal.tileLayerOpacity = 1;
 rkGlobal.priorityFullVisibleFromZoom = [0, 14, 15];
 rkGlobal.priorityReducedVisibilityFromZoom = [0, 12, 14];
@@ -29,7 +24,6 @@ rkGlobal.lineWidthFactor = [1.4, 0.5, 0.5];
 rkGlobal.arrowWidthFactor = [2, 3, 3];
 rkGlobal.opacity = 0.62;
 rkGlobal.colors = ['#004B67', '#51A4B6', '#FF6600']; // dark blue - light blue - orange
-rkGlobal.colorWarn = '#FF0000';
 
 rkGlobal.autoSwitchDistanceMeters = 55000;
 rkGlobal.defaultRegion = 'wien';
@@ -121,8 +115,6 @@ function removeAllSegmentsAndMarkers() {
 	}
 	rkGlobal.segments = {};
 
-	removeProblemstellenSegments();
-
 	rkGlobal.leafletMap.removeLayer(rkGlobal.markerLayerLowZoom);
 	rkGlobal.markerLayerLowZoom.clearLayers();
 	rkGlobal.leafletMap.removeLayer(rkGlobal.markerLayerHighZoom);
@@ -170,7 +162,7 @@ function loadGeoJson(file) {
 
 			var priority = parseInt(geojson.properties.priority, 10);
 			var stress = parseInt(geojson.properties.stress, 10);
-			if (isNaN(priority) || isNaN(stress)) {
+			if(isNaN(priority) || isNaN(stress)) {
 				console.warn("ignoring invalid object (priority / stress not set): " + JSON.stringify(geojson));
 				++ignoreCount;
 				continue;
@@ -249,12 +241,11 @@ function addSegmentToObject(object, geojsonLinestring) {
 function getSegmentKey(geojsonLinestring) {
 	var properties = geojsonLinestring.properties;
 	return {
-		"priority": properties.priority === undefined ? '0': properties.priority,
-		"stress": properties.stress === undefined ? '0': properties.stress,
+		"priority": properties.priority,
+		"stress": properties.stress,
 		"oneway": properties.oneway === undefined ? 'no' : properties.oneway,
 		"unpaved": properties.unpaved === undefined ? 'no' : properties.unpaved,
-		"steep": properties.steep === undefined ? 'no' : properties.steep,
-		"warning": properties.warning === undefined ? 'no' : properties.warning,
+		"steep": properties.steep === undefined ? 'no' : properties.steep
 	};
 }
 
@@ -325,11 +316,7 @@ function updateStyles() {
 
 function getLineStyle(zoom, properties) {
 	var lineWeight = getLineWeight(zoom, properties.priority);
-	if (properties.warning == "yes") {
-		return _getLineStyleWarn(lineWeight, properties);
-	} else {
-		return _getLineStyle(lineWeight, properties);
-	}
+	return _getLineStyle(lineWeight, properties);
 }
 
 function getLineStyleMinimal(properties) {
@@ -346,15 +333,6 @@ function _getLineStyle(lineWeight, properties) {
 	if(properties.unpaved === 'yes') {
 		style.dashArray = getUnpavedDashStyle(Math.max(2, lineWeight));
 	}
-	return style;
-}
-
-function _getLineStyleWarn(lineWeight, properties) {
-	var style = {
-		color: rkGlobal.colorWarn,
-		weight: lineWeight,
-		opacity: rkGlobal.opacity
-	};
 	return style;
 }
 
@@ -532,6 +510,7 @@ function loadLeaflet() {
 	}
 
 	initializeIcons();
+	initializePS();
 
 	// initialize hash, this causes loading of the default region
 	// and positioning of the map

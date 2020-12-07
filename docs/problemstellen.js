@@ -1,58 +1,115 @@
 "use strict";
 
-var problemstellenGroup = null;
+let psGlobal = {};
 
-const lueckeLineStyleDefault = {
-    color: '#991913',
-    opacity: '1',
-    weight: 4
-};
+psGlobal.markerLayerLowZoom = L.layerGroup(); // layer group holding all markers (viewed at lower zoom levels) - typically just dots
+psGlobal.markerLayerHighZoom = L.layerGroup(); // layer group holding all markers (viewed at higher zoom levels)
+var psLinesFeatureGroup = null;
+psGlobal.styleFunction = updateLineStyles;
+psGlobal.psGeoJsons = []; // array holding all problemStellen geojsons (lines)
 
-const lueckeLineStyleHighlight = {
-    color: '#ee0000',
-    opacity: '1',
-    weight: 8
-};
+function initializePS() {
+    console.log("Initializing PS Module");
+    initializePSIcons();
+}
+
+
+function initializePSIcons() {
+    psGlobal.icons = {};
+    psGlobal.icons.redDot = L.icon({
+        iconUrl: 'css/reddot.svg',
+        iconSize: [10, 10],
+        iconAnchor: [5, 5],
+        popupAnchor: [0, -5]
+    });
+    psGlobal.icons.luecke = L.icon({
+        iconUrl: 'css/luecke.svg',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        opacity: 0.5
+    });
+}
+
+// mouseover and clicking support: highlighting lines, showing tool tips
 
 var suppressMouseOverHighlight = false;
 
-function highlightLine(key) {
-    //console.log("Highlighting line " + key);
-    problemstellenGroup.eachLayer(function (layer) {
+function openTooltip(key) {
+    psLinesFeatureGroup.eachLayer(function (layer) {
         if (layer.key === key) {
-            layer.setStyle(lueckeLineStyleHighlight);
+            layer.openTooltip();
         }
     });
+}
+
+function closeTooltip(key) {
+    psLinesFeatureGroup.eachLayer(function (layer) {
+        if (layer.key === key) {
+            layer.closeTooltip();
+        }
+    });
+}
+
+function highlightLine(key) {
+    if (!suppressMouseOverHighlight) {
+        //console.log("Highlighting line " + key);
+        psLinesFeatureGroup.eachLayer(function (layer) {
+            if (layer.key === key) {
+                layer.setStyle(lueckeLineStyleHighlight);
+            }
+        });
+    }
 }
 
 function unhighlightLine(key) {
-    //console.log("Unhighlighting line " + key);
-    problemstellenGroup.eachLayer(function (layer) {
+    if (!suppressMouseOverHighlight) {
+        //console.log("Unhighlighting line " + key);
+        psLinesFeatureGroup.eachLayer(function (layer) {
+            if (layer.key === key) {
+                layer.setStyle(lueckeLineStyleDefault);
+            }
+        });
+    }
+}
+
+
+function onMarkerClick(e) {
+    let key = e.sourceTarget.options.key;
+    console.log("Opening popup for line " + key);
+    psLinesFeatureGroup.eachLayer(function (layer) {
         if (layer.key === key) {
-            layer.setStyle(lueckeLineStyleDefault);
+            console.log(layer);
+            layer.fireEvent('click');
         }
     });
 }
 
-function removeProblemstellenSegments() {
-    console.log("Removing Layer " + problemstellenGroup);
-    if (problemstellenGroup != null) {
-        problemstellenGroup.clearLayers();
-
-    }
-    rkGlobal.problemstellenSegments.length = 0;
+function onPSMarkerMouseOver(e) {
+    openTooltip(e.sourceTarget.options.key);
+    highlightLine(e.sourceTarget.options.key);
 }
 
-function updateProblemstellenStyles() {
+function onPSMarkerMouseOut(e) {
+    closeTooltip(e.sourceTarget.options.key);
+    unhighlightLine(e.sourceTarget.options.key);
+}
+
+// line style function
+// regularily called e.g. on zoom change
+// actually creates the lines from
+function updateLineStyles() {
+    var zoom = rkGlobal.leafletMap.getZoom();
     rkGlobal.leafletMap.createPane('problemstellen');
-    if (problemstellenGroup == null) {
-        problemstellenGroup = L.featureGroup().addTo(rkGlobal.leafletMap);
+    if (psLinesFeatureGroup == null) {
+        psLinesFeatureGroup = L.featureGroup().addTo(rkGlobal.leafletMap);
+    } else {
+        psLinesFeatureGroup.clearLayers();
     }
-    for (let i = 0; i < rkGlobal.problemstellenSegments.length; i++) {
-        let line = L.geoJson(rkGlobal.problemstellenSegments[i], {pane: "problemstellen"});
-        line.key = rkGlobal.problemstellenSegments[i].properties.key;
-        line.setStyle(lueckeLineStyleDefault);
-        line.addTo(problemstellenGroup);
+    for (let i = 0; i < psGlobal.psGeoJsons.length; i++) {
+        let line = L.geoJson(psGlobal.psGeoJsons[i], {pane: "problemstellen"});
+        line.key = psGlobal.psGeoJsons[i].properties.key;
+        line.setStyle(getPSLineStyle(zoom));
+        line.addTo(psLinesFeatureGroup);
         line.on('mouseover', function (e) {
             if (!suppressMouseOverHighlight) {
                 var layer = e.target;
@@ -66,25 +123,9 @@ function updateProblemstellenStyles() {
             }
         });
 
-        const icons = {
-            danger: 'achtung.svg',
-            slow: 'snail.svg',
-            luecke: 'css/luecke.png'
-        };
-        const iconUrl = icons[rkGlobal.problemstellenSegments[i].properties.type];
+        var texts = getLueckeTexts(psGlobal.psGeoJsons[i].properties);
 
-        const texts = {
-            luecke: 'Lücke'
-        };
-        const text = texts[rkGlobal.problemstellenSegments[i].properties.type];
-
-        let von = rkGlobal.problemstellenSegments[i].properties.LueckeVon;
-        let bis = rkGlobal.problemstellenSegments[i].properties.LueckeBis;
-        let richtung = rkGlobal.problemstellenSegments[i].properties.LueckeFahrtrichtung;
-        let abk = rkGlobal.problemstellenSegments[i].properties.LueckeAbk;
-        var description = "Zwischen " + von + " und " + bis + "<br/>Fahrtrichtung: " + richtung + "<br/>Geforderte Radinfrastruktur: " + abk;
-
-        line.bindPopup("<b>" + text + ": </b><br/>" + description + "<br/><img src='css/luecke.png' style='max-width: 200px;max-height: 200px;'/>",
+        line.bindPopup(texts.popup,
             {
                 autoClose: false,
                 closeOnClick: true,
@@ -93,68 +134,57 @@ function updateProblemstellenStyles() {
             }).on('popupopen', function (popup) {
             highlightLine(popup.sourceTarget.feature.properties.key);
             suppressMouseOverHighlight = true;
-            //console.log("popup opened !", popup);
-        }).on('popupclose', function (popup) {
-            unhighlightLine(popup.sourceTarget.feature.properties.key);
-            suppressMouseOverHighlight = false;
-            //console.log("popup closed !", popup);
-        });
+        }).bindTooltip(texts.tooltip)
+            .on('popupclose', function (popup) {
+                suppressMouseOverHighlight = false;
+                unhighlightLine(popup.sourceTarget.feature.properties.key);
+            });
+
     }
 
+    console.log("Zoom check  curr zoom = " + zoom);
+    if (zoom >= rkGlobal.iconZoomThresholds[1]) {
+        console.log("Changing to HighZoomLayer");
+        rkGlobal.leafletMap.removeLayer(psGlobal.markerLayerLowZoom);
+        rkGlobal.leafletMap.addLayer(psGlobal.markerLayerHighZoom);
+    } else if (zoom >= rkGlobal.iconZoomThresholds[0]) {
+        console.log("Changing to LowZoomLayer");
+        rkGlobal.leafletMap.removeLayer(psGlobal.markerLayerHighZoom);
+        rkGlobal.leafletMap.addLayer(psGlobal.markerLayerLowZoom);
+    } else {
+        console.log("Changing to LowZoomLayer");
+        rkGlobal.leafletMap.removeLayer(psGlobal.markerLayerHighZoom);
+        rkGlobal.leafletMap.removeLayer(psGlobal.markerLayerLowZoom);
+    }
 }
 
-function createProblemstellenMarkerLayersIncludingPopup(geojsonPoint) {
-    //console.log(geojsonPoint);
-    // var icons = getIcons(geojsonPoint.properties);
-    // if(icons == null) {
-    // 	return undefined;
-    // }
+// load geojson functions
+// we already create markers in the middle of the lines here, because they do not have dynamic styling like lines
 
-    const icons = {
-        danger: 'achtung.svg',
-        slow: 'snail.svg',
-        luecke: 'css/luecke.png'
-    };
-    const iconUrl = icons[geojsonPoint.properties.type];
+function removeProblemstellenSegmentsAndMarkers() {
+    if (psLinesFeatureGroup != null) {
+        psLinesFeatureGroup.clearLayers();
 
-    const texts = {
-        luecke: 'Lücke'
-    };
-    const text = texts[geojsonPoint.properties.type];
+    }
+    psGlobal.psGeoJsons.length = 0;
 
-    var description = geojsonPoint.properties && geojsonPoint.properties.description;
-    const marker = L.marker(L.geoJSON(geojsonPoint).getLayers()[0].getLatLng(), {
-        icon: L.icon({
-            iconUrl: iconUrl,
-            iconSize: [, 26],
-            iconAnchor: [, 13],
+    rkGlobal.leafletMap.removeLayer(psGlobal.markerLayerLowZoom);
+    psGlobal.markerLayerLowZoom.clearLayers();
+    rkGlobal.leafletMap.removeLayer(psGlobal.markerLayerHighZoom);
+    psGlobal.markerLayerHighZoom.clearLayers();
+}
+
+function createProblemstellenMarkerLayers(geojsonPoint) {
+    var markers = {
+        lowZoom: L.marker(L.geoJSON(geojsonPoint).getLayers()[0].getLatLng(), {
+            icon: psGlobal.icons.redDot,
+            key: geojsonPoint.properties.key
         }),
-        key: geojsonPoint.properties.key,
-        alt: description,
-    });
-
-    const markers = {
-        lowZoom: marker,
-        highZoom: marker,
+        highZoom: L.marker(L.geoJSON(geojsonPoint).getLayers()[0].getLatLng(), {
+            icon: psGlobal.icons[geojsonPoint.properties.type],
+            key: geojsonPoint.properties.key
+        })
     };
-
-    /*
-        markers.highZoom.bindPopup("<b>" + text + ": </b><br/>" + description + "<br/><img src='css/luecke.png' style='max-width: 200px;max-height: 200px;'/>",
-            {
-                autoClose: false,
-                closeOnClick: true,
-                closeButton: true,
-                closeOnEscapeKey: true
-            }).on('popupopen', function (popup) {
-            highlightLine(popup.sourceTarget.options.key);
-            suppressMouseOverHighlight = true;
-            console.log("popup opened !", popup);
-        }).on('popupclose', function (popup) {
-            unhighlightLine(popup.sourceTarget.options.key);
-            suppressMouseOverHighlight = false;
-            console.log("popup closed !", popup);
-        });
-    */
     return markers;
 }
 
@@ -166,31 +196,10 @@ function createProblemstellePoint(geojson, coordinates) {
     };
 }
 
-
-function onMarkerClick(e) {
-    let key = e.sourceTarget.options.key;
-    console.log("Opening popup for line " + key);
-    problemstellenGroup.eachLayer(function (layer) {
-        if (layer.key === key) {
-            console.log(layer);
-            layer.fireEvent('click');
-        }
-    });
-}
-
-function onMarkerMouseOver(e) {
-    if (!suppressMouseOverHighlight) {
-        highlightLine(e.sourceTarget.options.key);
-    }
-}
-
-function onMarkerMouseOut(e) {
-    if (!suppressMouseOverHighlight) {
-        unhighlightLine(e.sourceTarget.options.key);
-    }
-}
-
+// called by radlkarte
 function loadProblemstellenGeojson(problemStellenFile) {
+    removeProblemstellenSegmentsAndMarkers();
+
     console.log("=== loadProblemstellenGeojson with " + problemStellenFile);
 
     // get rid of "XML Parsing Error: not well-formed" during $.getJSON
@@ -212,37 +221,39 @@ function loadProblemstellenGeojson(problemStellenFile) {
         for (var i = 0; i < data.features.length; i++) {
             var geojson = data.features[i];
 
-            if (geojson.type != 'Feature' || geojson.properties == undefined || geojson.geometry == undefined || geojson.geometry.type != 'LineString' || geojson.geometry.coordinates.length < 2) {
-                if (geojson.geometry.type == 'Point') {
-                    var markerLayers = createProblemstellenMarkerLayersIncludingPopup(geojson);
-                    console.log(markerLayers);
-                    if (markerLayers != null) {
-                        rkGlobal.markerLayerLowZoom.addLayer(markerLayers.lowZoom);
-                        rkGlobal.markerLayerHighZoom.addLayer(markerLayers.highZoom);
-                    } else {
-                    }
-                } else {
-                    console.warn("ignoring invalid object (not a proper linestring feature): " + JSON.stringify(geojson));
-                }
-                continue;
-            }
+            if (geojson.type == 'Feature' && geojson.properties != undefined || geojson.geometry != undefined) {
+                if (geojson.geometry.type == 'LineString') {
+                    if (geojson.properties.type == "luecke") {
+                        var g1 = createProblemstellePoint(geojson, geojson.geometry.coordinates[Math.floor(geojson.geometry.coordinates.length / 2)]);
+                        let markerLayers = createProblemstellenMarkerLayers(g1);
+                        if (markerLayers != null) {
+                            psGlobal.markerLayerLowZoom.addLayer(markerLayers.lowZoom);
+                            psGlobal.markerLayerHighZoom.addLayer(markerLayers.highZoom);
+                        }
+                        markerLayers.lowZoom.on('click', onMarkerClick);
+                        markerLayers.lowZoom.on('mouseover', onPSMarkerMouseOver);
+                        markerLayers.lowZoom.on('mouseout', onPSMarkerMouseOut);
 
-            if (geojson.properties.type == "luecke") {
-                var g1 = createProblemstellePoint(geojson, geojson.geometry.coordinates[Math.floor(geojson.geometry.coordinates.length / 2)]);
-                let markerLayers = createProblemstellenMarkerLayersIncludingPopup(g1);
-                if (markerLayers != null) {
-                    rkGlobal.markerLayerLowZoom.addLayer(markerLayers.lowZoom);
-                    rkGlobal.markerLayerHighZoom.addLayer(markerLayers.highZoom);
+                        markerLayers.highZoom.on('click', onMarkerClick);
+                        markerLayers.highZoom.on('mouseover', onPSMarkerMouseOver);
+                        markerLayers.highZoom.on('mouseout', onPSMarkerMouseOut);
+
+                        // lines will be added to map in style function
+                        psGlobal.psGeoJsons.push(geojson);
+                    }
                 }
-                markerLayers.lowZoom.on('click', onMarkerClick);
-                markerLayers.highZoom.on('click', onMarkerClick);
-                markerLayers.lowZoom.on('mouseover', onMarkerMouseOver);
-                markerLayers.highZoom.on('mouseout', onMarkerMouseOut);
             }
-            rkGlobal.problemstellenSegments.push(geojson);
 
         }
-        rkGlobal.styleFunction();
 
+        psGlobal.styleFunction();
+
+        rkGlobal.leafletMap.on('zoomend', function (ev) {
+            //debug("zoom level changed to " + rkGlobal.leafletMap.getZoom() + ".. enqueueing style change");
+            $("#map").queue(function () {
+                psGlobal.styleFunction();
+                $(this).dequeue();
+            });
+        });
     });
 }
