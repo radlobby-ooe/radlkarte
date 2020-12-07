@@ -32,7 +32,8 @@ rkGlobal.configurations = {
 	'rendertest' : {
 		centerLatLng: L.latLng(50.088, 14.392),
 		geocodingBounds: '9.497,47.122,9.845,47.546',
-		geoJsonFile: 'data/radlkarte-rendertest.geojson'
+		geoJsonFile: 'data/radlkarte-rendertest.geojson',
+		geoJsonProblemstellenFile: ''
 	},
 	/*'oberes-rheintal' : {
 		centerLatLng: L.latLng(47.237, 9.598),
@@ -42,27 +43,32 @@ rkGlobal.configurations = {
 	'klagenfurt' : {
 		centerLatLng: L.latLng(46.624, 14.308),
 		geocodingBounds: '13.978,46.477,14.624,46.778',
-		geoJsonFile: 'data/radlkarte-klagenfurt.geojson'
+		geoJsonFile: 'data/radlkarte-klagenfurt.geojson',
+		geoJsonProblemstellenFile: ''
 	},
 	'linz' : {
 		centerLatLng: L.latLng(48.30, 14.285),
 		geocodingBounds: '13.999,48.171,14.644,48.472',
-		geoJsonFile: 'data/radlkarte-linz.geojson'
+		geoJsonFile: 'data/radlkarte-linz.geojson',
+		geoJsonProblemstellenFile: 'data/problemstellen-linz.geojson?12'
 	},
 	'rheintal' : {
 		centerLatLng: L.latLng(47.4102, 9.7211),
 		geocodingBounds: '9.497,47.122,9.845,47.546',
-		geoJsonFile: 'data/radlkarte-unteres-rheintal.geojson'
+		geoJsonFile: 'data/radlkarte-unteres-rheintal.geojson',
+		geoJsonProblemstellenFile: ''
 	},
 	'steyr' : {
 		centerLatLng: L.latLng(48.039, 14.42),
 		geocodingBounds: '14.319,47.997,14.551,48.227',
-		geoJsonFile: 'data/radlkarte-steyr.geojson'
+		geoJsonFile: 'data/radlkarte-steyr.geojson',
+		geoJsonProblemstellenFile: ''
 	},
 	'wien' : {
 		centerLatLng: L.latLng(48.208, 16.372),
 		geocodingBounds: '16.105,47.995,16.710,48.389', // min lon, min lat, max lon, max lat
-		geoJsonFile: 'data/radlkarte-wien.geojson'
+		geoJsonFile: 'data/radlkarte-wien.geojson',
+		geoJsonProblemstellenFile: ''
 	}
 };
 
@@ -85,11 +91,11 @@ function updateRadlkarteRegion(region) {
 
 	removeAllSegmentsAndMarkers();
 	loadGeoJson(configuration.geoJsonFile);
-	rkGlobal.geocodingControl.options.geocoder.options.geocodingQueryParams.bounds = configuration.geocodingBounds;
+	rkGlobal.currentGeoJsonFile = configuration.geoJsonFile;
 
-	if (region == 'linz') {
-		loadProblemstellenGeojson();
-	}
+	setProblemstellenGeojson(configuration.geoJsonProblemstellenFile);
+
+	rkGlobal.geocodingControl.options.geocoder.options.geocodingQueryParams.bounds = configuration.geocodingBounds;
 
 	// virtual page hit in google analytics
 	ga('set', 'page', '/' + region);
@@ -501,6 +507,7 @@ function loadLeaflet() {
 	}
 
 	initializeIcons();
+	initializePS();
 
 	// initialize hash, this causes loading of the default region
 	// and positioning of the map
