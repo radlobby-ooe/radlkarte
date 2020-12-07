@@ -7,12 +7,61 @@ psGlobal.markerLayerHighZoom = L.layerGroup(); // layer group holding all marker
 var psLinesFeatureGroup = null;
 psGlobal.styleFunction = updateLineStyles;
 psGlobal.psGeoJsons = []; // array holding all problemStellen geojsons (lines)
+psGlobal.problemStellenFile = null;
 
 function initializePS() {
     console.log("Initializing PS Module");
     initializePSIcons();
+    var psControl = L.control({position: 'topleft'});
+    psControl.onAdd = function (map) {
+        var div = L.DomUtil.create('div', 'command');
+        div.id = "psCommandDiv"
+        return div;
+    };
+    psControl.addTo(rkGlobal.leafletMap);
+    updatePSControl();
 }
 
+function updatePSControl() {
+    var div = document.getElementById("psCommandDiv");
+    if ((psGlobal.problemStellenFile == null) || (psGlobal.problemStellenFile.length === 0)) {
+        div.innerHTML = "";
+    } else {
+        if (rkGlobal.rkShown === undefined) {
+            rkGlobal.rkShown = true;
+        }
+        let rkChecked = rkGlobal.rkShown;
+        div.innerHTML =
+            '<form><input id="rkToggleCheckbox" type="checkbox" ' + (rkChecked ? "checked" : "") + ' onClick="rkToggleCheckboxClicked()"/>Radlkarte' +
+            '<input id="psToggleCheckbox" type="checkbox" onClick="psToggleCheckboxClicked()"/>Problemstellen<form/>';
+    }
+}
+
+function isPsToggleCheckboxChecked() {
+    let checkBox = document.getElementById("psToggleCheckbox");
+    return (checkBox != null) && checkBox.checked;
+}
+
+function isRkToggleCheckboxChecked() {
+    let checkBox = document.getElementById("rkToggleCheckbox");
+    return (checkBox != null) && checkBox.checked;
+}
+
+function psToggleCheckboxClicked() {
+    if (isPsToggleCheckboxChecked()) {
+        loadProblemstellenGeojson();
+    } else {
+        removeProblemstellenSegmentsAndMarkers();
+    }
+}
+
+function rkToggleCheckboxClicked() {
+    if (isRkToggleCheckboxChecked()) {
+        loadGeoJson(rkGlobal.currentGeoJsonFile);
+    } else {
+        removeAllSegmentsAndMarkers();
+    }
+}
 
 function initializePSIcons() {
     psGlobal.icons = {};
@@ -197,10 +246,27 @@ function createProblemstellePoint(geojson, coordinates) {
 }
 
 // called by radlkarte
-function loadProblemstellenGeojson(problemStellenFile) {
+function setProblemstellenGeojson(problemStellenFile) {
+    if (problemStellenFile === undefined) {
+        psGlobal.problemStellenFile = null;
+    } else {
+        psGlobal.problemStellenFile = problemStellenFile;
+    }
+    console.log("setProblemstellenGeojson with " + psGlobal.problemStellenFile);
+    updatePSControl();
+    if (isPsToggleCheckboxChecked()) {
+        console.log("checkbox is checked, immediately calling loadProblemstellenGeojson");
+        loadProblemstellenGeojson();
+    } else {
+        console.log("checkbox is not checked, calling removeProblemstellenSegmentsAndMarkers");
+        removeProblemstellenSegmentsAndMarkers();
+    }
+}
+
+function loadProblemstellenGeojson() {
     removeProblemstellenSegmentsAndMarkers();
 
-    console.log("=== loadProblemstellenGeojson with " + problemStellenFile);
+    console.log("=== loadProblemstellenGeojson with " + psGlobal.problemStellenFile);
 
     // get rid of "XML Parsing Error: not well-formed" during $.getJSON
     $.ajaxSetup({
@@ -210,7 +276,7 @@ function loadProblemstellenGeojson(problemStellenFile) {
             }
         }
     });
-    $.getJSON(problemStellenFile, function (data) {
+    $.getJSON(psGlobal.problemStellenFile, function (data) {
         if (data.type != "FeatureCollection") {
             console.error("expected a GeoJSON FeatureCollection. no radlkarte network can be displayed.");
             return;
