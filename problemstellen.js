@@ -8,6 +8,7 @@ var psLinesFeatureGroup = null;
 psGlobal.styleFunction = updateLineStyles;
 psGlobal.psGeoJsons = []; // array holding all problemStellen geojsons (lines)
 psGlobal.problemStellenFile = null;
+psGlobal.psTypes = {}; // after first parsing holds all available types - if empty, all should be shown. if not empty, types-checkboxes should be considered.
 
 function initializePS() {
     console.log("Initializing PS Module");
@@ -15,11 +16,19 @@ function initializePS() {
     var psControl = L.control({position: 'topleft'});
     psControl.onAdd = function (map) {
         var div = L.DomUtil.create('div', 'command');
-        div.id = "psCommandDiv"
+        div.id = "psCommandDiv";
         return div;
     };
     psControl.addTo(rkGlobal.leafletMap);
     updatePSControl();
+
+    var psControlSub = L.control({position: 'topleft'});
+    psControlSub.onAdd = function (map) {
+        var div = L.DomUtil.create('div', 'command');
+        div.id = "psCommandSubDiv";
+        return div;
+    };
+    psControlSub.addTo(rkGlobal.leafletMap);
 }
 
 function updatePSControl() {
@@ -33,8 +42,36 @@ function updatePSControl() {
         let rkChecked = rkGlobal.rkShown;
         div.innerHTML =
             '<form><input id="rkToggleCheckbox" type="checkbox" ' + (rkChecked ? "checked" : "") + ' onClick="rkToggleCheckboxClicked()"/>Radlkarte' +
-            '<input id="psToggleCheckbox" type="checkbox" onClick="psToggleCheckboxClicked()"/>Problemstellen<form/>';
+            '<input id="psToggleCheckbox" type="checkbox" checked onClick="psToggleCheckboxClicked()"/>Problemstellen<form/>';
     }
+}
+
+
+function setPSSubControlHidden(hidden) {
+    var div = document.getElementById("psCommandSubDiv");
+    div.hidden = hidden;
+}
+
+function updatePSSubControl() {
+    var div = document.getElementById("psCommandSubDiv");
+    var types = Object.keys(psGlobal.psTypes);
+
+    if (types.length === 0) {
+        div.innerHTML = "";
+    } else {
+        var cbs = "";
+        for (let i = 0; i < types.length; i++) {
+            let typ = types[i];
+            console.log("Rendering " + typ);
+            cbs = cbs + '<input id="psToggleCheckbox' + typ + '" type="checkbox" checked onClick="psSubToggleCheckboxClicked()"/>' + typ;
+        }
+        div.innerHTML =
+            '<div style="margin-left: 20px;"><form>' + cbs + '<form/></div>';
+    }
+}
+
+function psSubToggleCheckboxClicked() {
+    loadProblemstellenGeojson();
 }
 
 function isPsToggleCheckboxChecked() {
@@ -49,8 +86,10 @@ function isRkToggleCheckboxChecked() {
 
 function psToggleCheckboxClicked() {
     if (isPsToggleCheckboxChecked()) {
+        setPSSubControlHidden(false);
         loadProblemstellenGeojson();
     } else {
+        setPSSubControlHidden(true);
         removeProblemstellenSegmentsAndMarkers();
     }
 }
@@ -63,6 +102,12 @@ function rkToggleCheckboxClicked() {
     }
 }
 
+function showTyp(Typ) {
+    let checkBox = document.getElementById("psToggleCheckbox" + Typ);
+    return (checkBox == null) || checkBox.checked;
+}
+
+
 function initializePSIcons() {
     psGlobal.icons = {};
     psGlobal.icons.redDot = L.icon({
@@ -71,8 +116,26 @@ function initializePSIcons() {
         iconAnchor: [5, 5],
         popupAnchor: [0, -5]
     });
-    psGlobal.icons.luecke = L.icon({
+    psGlobal.icons["Lücke"] = L.icon({
         iconUrl: 'css/luecke.svg',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        opacity: 0.5
+    });
+    psGlobal.icons["Dooring"] = L.icon({
+        iconUrl: 'css/dooring.svg',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        opacity: 0.5
+    });
+    psGlobal.icons["Allgemein"] = L.icon({
+        iconUrl: 'css/warning.svg',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        opacity: 0.5
+    });
+    psGlobal.icons["None"] = L.icon({
+        iconUrl: 'css/warning.svg',
         iconSize: [30, 30],
         iconAnchor: [15, 15],
         opacity: 0.5
@@ -83,38 +146,36 @@ function initializePSIcons() {
 
 var suppressMouseOverHighlight = false;
 
-function openTooltip(key) {
+function openTooltip(id) {
     psLinesFeatureGroup.eachLayer(function (layer) {
-        if (layer.key === key) {
+        if (layer.id === id) {
             layer.openTooltip();
         }
     });
 }
 
-function closeTooltip(key) {
+function closeTooltip(id) {
     psLinesFeatureGroup.eachLayer(function (layer) {
-        if (layer.key === key) {
+        if (layer.id === id) {
             layer.closeTooltip();
         }
     });
 }
 
-function highlightLine(key) {
+function highlightLine(id) {
     if (!suppressMouseOverHighlight) {
-        //console.log("Highlighting line " + key);
         psLinesFeatureGroup.eachLayer(function (layer) {
-            if (layer.key === key) {
+            if (layer.id === id) {
                 layer.setStyle(lueckeLineStyleHighlight);
             }
         });
     }
 }
 
-function unhighlightLine(key) {
+function unhighlightLine(id) {
     if (!suppressMouseOverHighlight) {
-        //console.log("Unhighlighting line " + key);
         psLinesFeatureGroup.eachLayer(function (layer) {
-            if (layer.key === key) {
+            if (layer.id === id) {
                 layer.setStyle(lueckeLineStyleDefault);
             }
         });
@@ -123,10 +184,10 @@ function unhighlightLine(key) {
 
 
 function onMarkerClick(e) {
-    let key = e.sourceTarget.options.key;
-    console.log("Opening popup for line " + key);
+    let id = e.sourceTarget.options.id;
+    console.log("Opening popup for line " + id);
     psLinesFeatureGroup.eachLayer(function (layer) {
-        if (layer.key === key) {
+        if (layer.id === id) {
             console.log(layer);
             layer.fireEvent('click');
         }
@@ -134,13 +195,13 @@ function onMarkerClick(e) {
 }
 
 function onPSMarkerMouseOver(e) {
-    openTooltip(e.sourceTarget.options.key);
-    highlightLine(e.sourceTarget.options.key);
+    openTooltip(e.sourceTarget.options.id);
+    highlightLine(e.sourceTarget.options.id);
 }
 
 function onPSMarkerMouseOut(e) {
-    closeTooltip(e.sourceTarget.options.key);
-    unhighlightLine(e.sourceTarget.options.key);
+    closeTooltip(e.sourceTarget.options.id);
+    unhighlightLine(e.sourceTarget.options.id);
 }
 
 // line style function
@@ -156,7 +217,7 @@ function updateLineStyles() {
     }
     for (let i = 0; i < psGlobal.psGeoJsons.length; i++) {
         let line = L.geoJson(psGlobal.psGeoJsons[i], {pane: "problemstellen"});
-        line.key = psGlobal.psGeoJsons[i].properties.key;
+        line.id = psGlobal.psGeoJsons[i].properties.Id;
         line.setStyle(getPSLineStyle(zoom));
         line.addTo(psLinesFeatureGroup);
         line.on('mouseover', function (e) {
@@ -172,7 +233,7 @@ function updateLineStyles() {
             }
         });
 
-        var texts = getLueckeTexts(psGlobal.psGeoJsons[i].properties);
+        var texts = getLueckeTexts(psGlobal.psGeoJsons[i].geometry, psGlobal.psGeoJsons[i].properties);
 
         line.bindPopup(texts.popup,
             {
@@ -181,12 +242,12 @@ function updateLineStyles() {
                 closeButton: true,
                 closeOnEscapeKey: true
             }).on('popupopen', function (popup) {
-            highlightLine(popup.sourceTarget.feature.properties.key);
+            highlightLine(popup.sourceTarget.feature.properties.Id);
             suppressMouseOverHighlight = true;
         }).bindTooltip(texts.tooltip)
             .on('popupclose', function (popup) {
                 suppressMouseOverHighlight = false;
-                unhighlightLine(popup.sourceTarget.feature.properties.key);
+                unhighlightLine(popup.sourceTarget.feature.properties.Id);
             });
 
     }
@@ -223,30 +284,26 @@ function removeProblemstellenSegmentsAndMarkers() {
     psGlobal.markerLayerHighZoom.clearLayers();
 }
 
-function createProblemstellenMarkerLayers(geojsonPoint) {
-    var markers = {
+function createProblemstellenMarkerLayers(geojsonPoint, callForMarker) {
+    let markers = {
         lowZoom: L.marker(L.geoJSON(geojsonPoint).getLayers()[0].getLatLng(), {
             icon: psGlobal.icons.redDot,
-            key: geojsonPoint.properties.key
+            id: geojsonPoint.properties.Id
         }),
         highZoom: L.marker(L.geoJSON(geojsonPoint).getLayers()[0].getLatLng(), {
-            icon: psGlobal.icons[geojsonPoint.properties.type],
-            key: geojsonPoint.properties.key
+            icon: psGlobal.icons[geojsonPoint.properties.Typ],
+            id: geojsonPoint.properties.Id
         })
     };
+    callForMarker(markers.lowZoom);
+    callForMarker(markers.highZoom);
     return markers;
 }
 
-function createProblemstellePoint(geojson, coordinates) {
-    return {
-        "geometry": {"coordinates": coordinates, "type": "Point"},
-        "properties": geojson.properties,
-        "type": "Feature"
-    };
-}
 
 // called by radlkarte
 function setProblemstellenGeojson(problemStellenFile) {
+    psGlobal.psTypes = {};
     if (problemStellenFile === undefined) {
         psGlobal.problemStellenFile = null;
     } else {
@@ -284,34 +341,66 @@ function loadProblemstellenGeojson() {
 
         console.log('problemstellen length ' + data.features.length);
 
+        let firstParse = Object.keys(psGlobal.psTypes).length === 0;
+
         for (var i = 0; i < data.features.length; i++) {
             var geojson = data.features[i];
 
+            console.log('Handling a Problemstellen-GeoJson ' + JSON.stringify(geojson));
+
             if (geojson.type == 'Feature' && geojson.properties != undefined || geojson.geometry != undefined) {
-                if (geojson.geometry.type == 'LineString') {
-                    if (geojson.properties.type == "luecke") {
-                        var g1 = createProblemstellePoint(geojson, geojson.geometry.coordinates[Math.floor(geojson.geometry.coordinates.length / 2)]);
-                        let markerLayers = createProblemstellenMarkerLayers(g1);
+                psGlobal.psTypes[geojson.properties.Typ] = "dummy";
+
+                if (firstParse || showTyp(geojson.properties.Typ)) {
+                    if (geojson.geometry.type === 'LineString') {
+                        // lines will be added to map in style function
+                        psGlobal.psGeoJsons.push(geojson);
+                        // If we got a linestring, the following will add additional marker "in the middle" of the LineString
+                        let markerLayers = createProblemstellenMarkerLayers({
+                            "geometry": {
+                                "coordinates": geojson.geometry.coordinates[Math.floor(geojson.geometry.coordinates.length / 2)],
+                                "type": "Point"
+                            },
+                            "properties": geojson.properties,
+                            "type": "Feature"
+                        }, function (markerLayer) {
+                            markerLayer.on('click', onMarkerClick);
+                            markerLayer.on('mouseover', onPSMarkerMouseOver);
+                            markerLayer.on('mouseout', onPSMarkerMouseOut);
+                        });
                         if (markerLayers != null) {
                             psGlobal.markerLayerLowZoom.addLayer(markerLayers.lowZoom);
                             psGlobal.markerLayerHighZoom.addLayer(markerLayers.highZoom);
                         }
-                        markerLayers.lowZoom.on('click', onMarkerClick);
-                        markerLayers.lowZoom.on('mouseover', onPSMarkerMouseOver);
-                        markerLayers.lowZoom.on('mouseout', onPSMarkerMouseOut);
-
-                        markerLayers.highZoom.on('click', onMarkerClick);
-                        markerLayers.highZoom.on('mouseover', onPSMarkerMouseOver);
-                        markerLayers.highZoom.on('mouseout', onPSMarkerMouseOut);
-
-                        // lines will be added to map in style function
-                        psGlobal.psGeoJsons.push(geojson);
+                    } else if (geojson.geometry.type === 'Point') {
+                        var texts = getLueckeTexts(geojson.geometry, geojson.properties);
+                        let markerLayers = createProblemstellenMarkerLayers({
+                            "geometry": geojson.geometry,
+                            "properties": geojson.properties,
+                            "type": "Feature"
+                        }, function (markerLayer) {
+                            markerLayer.bindPopup(texts.popup,
+                                {
+                                    autoClose: false,
+                                    closeOnClick: true,
+                                    closeButton: true,
+                                    closeOnEscapeKey: true
+                                }).bindTooltip(texts.tooltip);
+                        });
+                        if (markerLayers != null) {
+                            psGlobal.markerLayerLowZoom.addLayer(markerLayers.lowZoom);
+                            psGlobal.markerLayerHighZoom.addLayer(markerLayers.highZoom);
+                        } else {
+                            console.log("Unknown geojson.geometry " + geojson.geometry.type);
+                        }
                     }
                 }
             }
 
         }
-
+        if (firstParse) {
+            updatePSSubControl();
+        }
         psGlobal.styleFunction();
 
         rkGlobal.leafletMap.on('zoomend', function (ev) {
