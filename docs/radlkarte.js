@@ -118,29 +118,6 @@ function removeAllSegmentsAndMarkers() {
 	rkGlobal.markerLayerHighZoom.clearLayers();
 }
 
-function setMapVisible(visible) {
-	if (visible) {
-		for(const key of Object.keys(rkGlobal.segments)) {
-			rkGlobal.leafletMap.addLayer(rkGlobal.segments[key].lines);
-			//rkGlobal.leafletMap.addLayer(rkGlobal.segments[key].steepLines);
-			rkGlobal.leafletMap.addLayer(rkGlobal.segments[key].decorators);
-		}
-		rkGlobal.leafletMap.addLayer(rkGlobal.markerLayerLowZoom);
-		rkGlobal.leafletMap.addLayer(rkGlobal.markerLayerHighZoom);
-		rkGlobal.styleFunction();
-	} else {
-		for(const key of Object.keys(rkGlobal.segments)) {
-			rkGlobal.leafletMap.removeLayer(rkGlobal.segments[key].lines);
-			if(rkGlobal.leafletMap.hasLayer(rkGlobal.segments[key].steepLines)) {
-				rkGlobal.leafletMap.removeLayer(rkGlobal.segments[key].steepLines);
-			}
-			rkGlobal.leafletMap.removeLayer(rkGlobal.segments[key].decorators);
-		}
-		rkGlobal.leafletMap.removeLayer(rkGlobal.markerLayerLowZoom);
-		rkGlobal.leafletMap.removeLayer(rkGlobal.markerLayerHighZoom);
-	}
-}
-
 function loadGeoJson(file) {
 	// get rid of "XML Parsing Error: not well-formed" during $.getJSON
 	$.ajaxSetup({
