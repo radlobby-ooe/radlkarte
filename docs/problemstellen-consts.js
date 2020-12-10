@@ -93,17 +93,28 @@ function getLueckeTexts(geometry, properties) {
     let photoUrl = psGlobal.icons[properties.Typ].options.iconUrl;
     if (properties.Fotos != null) {
         if (properties.Fotos.length > 0) {
-            photoUrl = ImagePrefix + properties.Fotos[0];
+            photoUrl = ImagePrefix + "thumb-" + properties.Fotos[0];
         }
     }
 
+    let point;
+    if (geometry.type === "LineString") {
+        point = geometry.coordinates[Math.floor(geometry.coordinates.length/2)];
+    } else if (geometry.type === "Point") {
+        point = geometry.coordinates[0];
+    } else {
+        // ?
+    }
+    // todo Für LineString können wir uns Richtung von Streetview ausrechnen: https://stackoverflow.com/questions/387942/google-street-view-url
+    let streetViewUrl = "http://maps.google.com/maps?q=&layer=c&cbll="+point[1]+","+point[0];
 
     let popup = "<div style='margin-top:25px;'><div style='float:left; width:50%;'><var><b>" + typeText + "</b></var></div>" +
         "<div style='margin-left:50%; text-align: right;margin-bottom:5px;'><var>" + id + "</var></div>" +
         "<div style='margin-bottom:5px'><b>" + properties.Titel + "</b></div>" +
         "<div style='margin-bottom:5px'>" + lage + ", " + zwischen + richtung +
         "<div style='margin-top:5px'><b> Vorschlag:<br/>" + vorschlag + "</b></div>" +
-        "<img id='myId123' src='" + photoUrl + "' style='margin:20px;' class='thumbImage' onclick='enlargeImg();'/></div>";
+        "<img id='myId123' src='" + photoUrl + "' style='margin:20px;' class='thumbImage' onclick='enlargeImg();'/></div>" +
+        "<div style='text-align: center; font-size: smaller;'><a href='"+streetViewUrl+"' target='_blank'>Neues Fenster mit Google Streetview</a></div>";
 
     let tooltip =
         "<div style='float:left; width:50%;'><b>" + typeText + "</b></div>" +
@@ -115,16 +126,16 @@ function getLueckeTexts(geometry, properties) {
     }
 }
 
-function enlargeImg(){
+function enlargeImg() {
     // Get the modal
     var modal = document.getElementById("myModal");// Get the image and insert it inside the modal - use its "alt" text as a caption
-    console.log("Found "+modal);
+    console.log("Found " + modal);
     var img = document.getElementById("myId123");
-    console.log("Found "+img);
+    console.log("Found " + img);
     var modalImg = document.getElementById("img01");
-    console.log("Found "+modalImg);
+    console.log("Found " + modalImg);
     var captionText = document.getElementById("caption");
     modal.style.display = "block";
-    modalImg.src = img.src;
+    modalImg.src = img.src.replace("thumb-", "");
     captionText.innerHTML = img.alt;
 }
