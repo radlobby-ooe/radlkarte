@@ -102,8 +102,8 @@ function updateRadlkarteRegion(region) {
 	rkGlobal.geocodingControl.options.geocoder.options.geocodingQueryParams.bounds = configuration.geocodingBounds;
 
 	// virtual page hit in google analytics
-	ga('set', 'page', '/' + region);
-	ga('send', 'pageview');
+	//ga('set', 'page', '/' + region);
+	//ga('send', 'pageview');
 }
 
 function removeAllSegmentsAndMarkers() {

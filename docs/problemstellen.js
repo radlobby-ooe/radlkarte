@@ -156,10 +156,28 @@ function openTooltip(id) {
     });
 }
 
+function openPopup(id) {
+    console.log("Opening popup "+id);
+    psLinesFeatureGroup.eachLayer(function (layer) {
+        if (layer.id === id) {
+            layer.openPopup();
+        }
+    });
+}
+
+
 function closeTooltip(id) {
     psLinesFeatureGroup.eachLayer(function (layer) {
         if (layer.id === id) {
             layer.closeTooltip();
+        }
+    });
+}
+
+function flyTo(id) {
+    psLinesFeatureGroup.eachLayer(function (layer) {
+        if (layer.id === id) {
+            rkGlobal.leafletMap.fitBounds(layer.getBounds());  // flyto does not work with immediately opening popup. lets use fitBounds!
         }
     });
 }
@@ -247,7 +265,7 @@ function updateLineStyles() {
             highlightLine(popup.sourceTarget.feature.properties.Id);
             suppressMouseOverHighlight = true;
             let scrollMenu = document.getElementById("myScrollMenu");
-            if (scrollMenu!=null) {
+            if (scrollMenu != null) {
                 console.log("Adding wheel handler for popup");
                 scrollMenu.onwheel = scrollMenuScrollWheel;
             } else {
@@ -276,6 +294,18 @@ function updateLineStyles() {
         rkGlobal.leafletMap.removeLayer(psGlobal.markerLayerHighZoom);
         rkGlobal.leafletMap.removeLayer(psGlobal.markerLayerLowZoom);
     }
+    if (psGlobal.initialOpen != null) {
+        let id = psGlobal.initialOpen;
+        flyTo(psGlobal.initialOpen, false);
+        rkGlobal.leafletMap.addEventListener('moveend', openAfterFlyTo);
+    }
+}
+
+
+function openAfterFlyTo(){
+    rkGlobal.leafletMap.removeEventListener('moveend', openAfterFlyTo);
+    openPopup(psGlobal.initialOpen);
+    psGlobal.initialOpen=null;
 }
 
 // load geojson functions
@@ -313,6 +343,10 @@ function createProblemstellenMarkerLayers(geojsonPoint, callForMarker) {
 
 // called by radlkarte
 function setProblemstellenGeojson(problemStellenFile) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const openId = urlParams.get('open');
+    console.log("URL param open=" + openId);
+    psGlobal.initialOpen = openId;
     psGlobal.psTypes = {};
     if (problemStellenFile === undefined) {
         psGlobal.problemStellenFile = null;
@@ -356,7 +390,7 @@ function loadProblemstellenGeojson() {
         for (var i = 0; i < data.features.length; i++) {
             var geojson = data.features[i];
 
-            console.log('Handling a Problemstellen-GeoJson ' + JSON.stringify(geojson));
+            //console.log('Handling a Problemstellen-GeoJson ' + JSON.stringify(geojson));
 
             if (geojson.type == 'Feature' && geojson.properties != undefined || geojson.geometry != undefined) {
                 psGlobal.psTypes[geojson.properties.Typ] = "dummy";
