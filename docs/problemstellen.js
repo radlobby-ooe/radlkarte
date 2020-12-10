@@ -158,11 +158,30 @@ function openTooltip(id) {
 
 function openPopup(id) {
     console.log("Opening popup "+id);
+    let found = false;
     psLinesFeatureGroup.eachLayer(function (layer) {
         if (layer.id === id) {
+            found = true;
             layer.openPopup();
         }
     });
+    if (!found) {
+        psGlobal.markerLayerHighZoom.eachLayer(function (layer) {
+            console.log("Checking markers high, " + layer.options.id);
+            if (layer.options.id === id) {
+                found = true;
+                layer.openPopup();
+            }
+        });
+        if (!found) {
+            psGlobal.markerLayerLowZoom.eachLayer(function (layer) {
+                console.log("Checking markers low, "+layer.id);
+                if (layer.options.id === id) {
+                    layer.openPopup();
+                }
+            });
+        }
+    }
 }
 
 
@@ -176,8 +195,24 @@ function closeTooltip(id) {
 
 function flyTo(id) {
     psLinesFeatureGroup.eachLayer(function (layer) {
+        console.log("Checking lines, "+layer.id);
         if (layer.id === id) {
             rkGlobal.leafletMap.fitBounds(layer.getBounds());  // flyto does not work with immediately opening popup. lets use fitBounds!
+            return;
+        }
+    });
+    psGlobal.markerLayerHighZoom.eachLayer(function (layer) {
+        console.log("Checking markers high, "+layer.options.id);
+        if (layer.options.id === id) {
+            rkGlobal.leafletMap.panTo(layer.getLatLng());  // flyto does not work with immediately opening popup. lets use fitBounds!
+            return;
+        }
+    });
+    psGlobal.markerLayerLowZoom.eachLayer(function (layer) {
+        console.log("Checking markers low, "+layer.id);
+        if (layer.options.id === id) {
+            rkGlobal.leafletMap.panTo(layer.getLatLng());  // flyto does not work with immediately opening popup. lets use fitBounds!
+            return;
         }
     });
 }
@@ -297,13 +332,13 @@ function updateLineStyles() {
     if (psGlobal.initialOpen != null) {
         let id = psGlobal.initialOpen;
         flyTo(psGlobal.initialOpen, false);
-        rkGlobal.leafletMap.addEventListener('moveend', openAfterFlyTo);
+        rkGlobal.leafletMap.once('moveend', openAfterFlyTo);
     }
 }
 
 
 function openAfterFlyTo(){
-    rkGlobal.leafletMap.removeEventListener('moveend', openAfterFlyTo);
+    //rkGlobal.leafletMap.removeEventListener('moveend', openAfterFlyTo);
     openPopup(psGlobal.initialOpen);
     psGlobal.initialOpen=null;
 }
