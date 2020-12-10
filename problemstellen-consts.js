@@ -90,31 +90,38 @@ function getLueckeTexts(geometry, properties) {
         }
     }
 
-    let photoUrl = psGlobal.icons[properties.Typ].options.iconUrl;
-    if (properties.Fotos != null) {
-        if (properties.Fotos.length > 0) {
-            photoUrl = ImagePrefix + "thumb-" + properties.Fotos[0];
+    let imageList = "";
+    if ((properties.Fotos != null) && (properties.Fotos.length > 0)) {
+        for (let i = 0; i < properties.Fotos.length; i++) {
+            let photoUrl = ImagePrefix + "thumb-" + properties.Fotos[i];
+            let stringFotos = JSON.stringify(properties.Fotos);
+            imageList += "<img id='myId123' src='" + photoUrl + "' style='margin:20px;' class='thumbImage' onclick='enlargeImg(this," + stringFotos + ", " + i + ");'/>";
         }
+    } else {
+        let photoUrl = psGlobal.icons[properties.Typ].options.iconUrl;
+        imageList = "<img id='myId123' src='" + photoUrl + "' style='margin:20px;' class='thumbImage' onclick='enlargeImg(this, [], 0);'/>";
     }
 
     let point;
     if (geometry.type === "LineString") {
-        point = geometry.coordinates[Math.floor(geometry.coordinates.length/2)];
+        point = geometry.coordinates[Math.floor(geometry.coordinates.length / 2)];
     } else if (geometry.type === "Point") {
         point = geometry.coordinates[0];
     } else {
         // ?
     }
     // todo Für LineString können wir uns Richtung von Streetview ausrechnen: https://stackoverflow.com/questions/387942/google-street-view-url
-    let streetViewUrl = "http://maps.google.com/maps?q=&layer=c&cbll="+point[1]+","+point[0];
+    let streetViewUrl = "http://maps.google.com/maps?q=&layer=c&cbll=" + point[1] + "," + point[0];
 
     let popup = "<div style='margin-top:25px;'><div style='float:left; width:50%;'><var><b>" + typeText + "</b></var></div>" +
         "<div style='margin-left:50%; text-align: right;margin-bottom:5px;'><var>" + id + "</var></div>" +
         "<div style='margin-bottom:5px'><b>" + properties.Titel + "</b></div>" +
         "<div style='margin-bottom:5px'>" + lage + ", " + zwischen + richtung +
         "<div style='margin-top:5px'><b> Vorschlag:<br/>" + vorschlag + "</b></div>" +
-        "<img id='myId123' src='" + photoUrl + "' style='margin:20px;' class='thumbImage' onclick='enlargeImg();'/></div>" +
-        "<div style='text-align: center; font-size: smaller;'><a href='"+streetViewUrl+"' target='_blank'>Neues Fenster mit Google Streetview</a></div>";
+        "<div id='myScrollMenu' class='scrollmenu'>" +
+        imageList +
+        "</div>" +
+        "<div style='text-align: center; font-size: smaller;'><a href='" + streetViewUrl + "' target='_blank'>Neues Fenster mit Google Street View</a></div>";
 
     let tooltip =
         "<div style='float:left; width:50%;'><b>" + typeText + "</b></div>" +
@@ -126,16 +133,93 @@ function getLueckeTexts(geometry, properties) {
     }
 }
 
-function enlargeImg() {
-    // Get the modal
-    var modal = document.getElementById("myModal");// Get the image and insert it inside the modal - use its "alt" text as a caption
-    console.log("Found " + modal);
-    var img = document.getElementById("myId123");
-    console.log("Found " + img);
+// all problemstelle image list and full screen image helper functions below...
+function scrollMenuScrollWheel(evt) {
+    evt.preventDefault();
+    let scrollMenu = document.getElementById("myScrollMenu");
+    if (scrollMenu != null) {
+        if (scrollMenu.deltaX === undefined) {
+            // save it to the div for later usage
+            scrollMenu.deltaX = 0;
+        }
+        scrollMenu.deltaX += evt.deltaY;
+        if (scrollMenu.deltaX < 0) {
+            //console.log("Resetting to 0");
+            scrollMenu.deltaX = 0;
+        }
+        let MAXW = scrollMenu.scrollWidth - 180;
+        if (scrollMenu.deltaX > MAXW) {
+            //console.log("Resetting to width of " + MAXW);
+            scrollMenu.deltaX = MAXW;
+        }
+        //console.log("Scrolling by " + evt.deltaY + ". New saved deltaY=" + scrollMenu.deltaX);
+        scrollMenu.scroll(scrollMenu.deltaX, 0);
+    }
+}
+
+function updateModalArrows() {
     var modalImg = document.getElementById("img01");
-    console.log("Found " + modalImg);
+    var leftVisible = false;
+    var rightVisible = false;
+    if (modalImg != null) {
+        let allFotos = modalImg.Fotos;
+        let currIndex = modalImg.currIndex;
+        if ((allFotos != null) && (allFotos.length)) {
+            leftVisible = currIndex > 0;
+            rightVisible = currIndex + 1 < allFotos.length;
+        }
+    }
+    var leftA = document.getElementById("modalLeftArrow");
+    if (leftA != null) {
+        leftA.hidden = !leftVisible;
+    }
+    var rightA = document.getElementById("modalRightArrow");
+    if (rightA != null) {
+        rightA.hidden = !rightVisible;
+    }
+
+
+}
+
+function changeModalImage(delta) {
+    var modalImg = document.getElementById("img01");
+    let allFotos = modalImg.Fotos;
+    let currIndex = modalImg.currIndex;
+    let newIndex = modalImg.currIndex + delta;
+    if (newIndex < 0) {
+        newIndex = 0;
+    }
+    if (newIndex > allFotos.length - 1) {
+        newIndex = allFotos.length - 1;
+    }
+    modalImg.src = ImagePrefix + allFotos[newIndex];
+    modalImg.currIndex = newIndex;
+    updateModalArrows();
+    //var captionText = document.getElementById("caption");
+    //captionText.innerHTML = img.alt;
+}
+
+function modalImageRightClick() {
+    console.log("click right");
+    changeModalImage(+1);
+}
+
+function modalImageLeftClick() {
+    console.log("click left");
+    changeModalImage(-1);
+}
+
+function enlargeImg(img, allFotos, currIndex) {
+    console.log("Fotos: " + allFotos);
+    console.log("Index: " + currIndex);
+    var modal = document.getElementById("myModal");// Get the image and insert it inside the modal
+    var modalImg = document.getElementById("img01");
     var captionText = document.getElementById("caption");
     modal.style.display = "block";
     modalImg.src = img.src.replace("thumb-", "");
+    modalImg.Fotos = allFotos;
+    modalImg.currIndex = currIndex;
+    //updateArrows();
     captionText.innerHTML = img.alt;
+    updateModalArrows();
 }

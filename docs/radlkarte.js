@@ -26,7 +26,7 @@ rkGlobal.opacity = 0.62;
 rkGlobal.colors = ['#004B67', '#51A4B6', '#FF6600']; // dark blue - light blue - orange
 
 rkGlobal.autoSwitchDistanceMeters = 55000;
-rkGlobal.defaultRegion = 'wien';
+rkGlobal.defaultRegion = 'linz';
 rkGlobal.defaultZoom = 14;
 rkGlobal.configurations = {
 	'rendertest' : {
@@ -78,6 +78,7 @@ function debug(obj) {
 	}
 }
 
+var firstLoad = true;
 /**
  * set the currently active region.
  * called from rkGlobal.hash (when region is changed e.g. via hyperlink or by changing the URL)
@@ -90,7 +91,10 @@ function updateRadlkarteRegion(region) {
 	}
 
 	removeAllSegmentsAndMarkers();
-	loadGeoJson(configuration.geoJsonFile);
+	if (!firstLoad) {
+		loadGeoJson(configuration.geoJsonFile);
+		firstLoad = false;
+	}
 	rkGlobal.currentGeoJsonFile = configuration.geoJsonFile;
 
 	setProblemstellenGeojson(configuration.geoJsonProblemstellenFile);

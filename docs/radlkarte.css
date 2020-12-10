@@ -141,8 +141,10 @@ ul.legend li img {
 	margin-bottom: 1em;
 }
 
+/* all problemstelle image list and full screen image helper classes below... - todo: clean up! */
+
 .thumbImage {
-	max-height: 200px;
+	max-height: 150px;
 	max-width: 200px;
 }
 
@@ -232,6 +234,77 @@ ul.legend li img {
 		width: 100%;
 	}
 }
+
+
+div.scrollmenu {
+
+	overflow-x: auto;
+	overflow-y: hidden;
+	white-space: nowrap;
+	width: 280px;
+	height: 220px;
+}
+
+div.scrollmenu img {
+	display: inline-block;
+	color: white;
+	text-align: center;
+	padding: 14px;
+	text-decoration: none;
+}
+
+div.scrollmenu img:hover {
+	background-color: #777;
+}
+
+/* Container holding the image and the text */
+.container {
+	position: relative;
+	text-align: center;
+	color: white;
+}
+
+
+/* Top left text */
+.middle-left {
+	position: absolute;
+	top: 50%;
+	left: 16px;
+}
+
+/* Top right text */
+.middle-right {
+	position: absolute;
+	top: 50%;
+	right: 16px;
+}
+
+.arrow.right:hover {
+	border-width: 0 15px 15px 0;
+}
+
+.arrow.left:hover {
+	border-width: 0 15px 15px 0;
+}
+
+
+.arrow {
+	border: solid white;
+	border-width: 0 5px 5px 0;
+	display: inline-block;
+	padding: 30px;
+}
+
+.right {
+	transform: rotate(-45deg);
+	-webkit-transform: rotate(-45deg);
+}
+
+.left {
+	transform: rotate(135deg);
+	-webkit-transform: rotate(135deg);
+}
+
 /*
 - #AAB622 Grün für Schrift
 

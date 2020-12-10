@@ -33,23 +33,25 @@ function initializePS() {
 
 function updatePSControl() {
     var div = document.getElementById("psCommandDiv");
-    if ((psGlobal.problemStellenFile == null) || (psGlobal.problemStellenFile.length === 0)) {
-        div.innerHTML = "";
-    } else {
-        if (rkGlobal.rkShown === undefined) {
-            rkGlobal.rkShown = true;
-        }
-        let rkChecked = rkGlobal.rkShown;
-        div.innerHTML =
-            '<form><input id="rkToggleCheckbox" type="checkbox" ' + (rkChecked ? "checked" : "") + ' onClick="rkToggleCheckboxClicked()"/>Radlkarte' +
-            '<input id="psToggleCheckbox" type="checkbox" checked onClick="psToggleCheckboxClicked()"/>Problemstellen<form/>';
+    if (rkGlobal.rkShown === undefined) {
+        rkGlobal.rkShown = false;
     }
+    let rkChecked = rkGlobal.rkShown;
+    let html = '<form><input id="rkToggleCheckbox" type="checkbox" ' + (rkChecked ? "checked" : "") + ' onClick="rkToggleCheckboxClicked()"/>Radlkarte';
+    if ((psGlobal.problemStellenFile != null) && (psGlobal.problemStellenFile.length !== 0)) {
+        html += '<input id="psToggleCheckbox" type="checkbox" checked onClick="psToggleCheckboxClicked()"/>Problemstellen<form/>';
+    } else {
+        setPSSubControlHidden(true);
+    }
+    div.innerHTML = html;
 }
 
 
 function setPSSubControlHidden(hidden) {
     var div = document.getElementById("psCommandSubDiv");
-    div.hidden = hidden;
+    if (div != null) {
+        div.hidden = hidden;
+    }
 }
 
 function updatePSSubControl() {
@@ -244,6 +246,14 @@ function updateLineStyles() {
             }).on('popupopen', function (popup) {
             highlightLine(popup.sourceTarget.feature.properties.Id);
             suppressMouseOverHighlight = true;
+            let scrollMenu = document.getElementById("myScrollMenu");
+            if (scrollMenu!=null) {
+                console.log("Adding wheel handler for popup");
+                scrollMenu.onwheel = scrollMenuScrollWheel;
+            } else {
+                console.log("myScrollMenu not found in popup");
+
+            }
         }).bindTooltip(texts.tooltip)
             .on('popupclose', function (popup) {
                 suppressMouseOverHighlight = false;
