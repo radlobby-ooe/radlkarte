@@ -1,5 +1,7 @@
 "use strict";
 
+const ImagePrefix = "img/";
+
 const lueckeLineStyleDefault = {
     color: '#ee1d39',
     opacity: '0.8'
@@ -87,13 +89,21 @@ function getLueckeTexts(geometry, properties) {
             zwischen = "zwischen " + positions.von + " und " + positions.bis;
         }
     }
-    let iconUrl = psGlobal.icons[properties.Typ].options.iconUrl;
+
+    let photoUrl = psGlobal.icons[properties.Typ].options.iconUrl;
+    if (properties.Fotos != null) {
+        if (properties.Fotos.length > 0) {
+            photoUrl = ImagePrefix + properties.Fotos[0];
+        }
+    }
+
+
     let popup = "<div style='margin-top:25px;'><div style='float:left; width:50%;'><var><b>" + typeText + "</b></var></div>" +
         "<div style='margin-left:50%; text-align: right;margin-bottom:5px;'><var>" + id + "</var></div>" +
         "<div style='margin-bottom:5px'><b>" + properties.Titel + "</b></div>" +
         "<div style='margin-bottom:5px'>" + lage + ", " + zwischen + richtung +
         "<div style='margin-top:5px'><b> Vorschlag:<br/>" + vorschlag + "</b></div>" +
-        "<img src='" + iconUrl + "' style='max-width: 100px;max-height: 100px;margin:20px;'/></div>";
+        "<img id='myId123' src='" + photoUrl + "' style='margin:20px;' class='thumbImage' onclick='enlargeImg();'/></div>";
 
     let tooltip =
         "<div style='float:left; width:50%;'><b>" + typeText + "</b></div>" +
@@ -103,5 +113,18 @@ function getLueckeTexts(geometry, properties) {
         "popup": popup,
         "tooltip": tooltip
     }
+}
 
+function enlargeImg(){
+    // Get the modal
+    var modal = document.getElementById("myModal");// Get the image and insert it inside the modal - use its "alt" text as a caption
+    console.log("Found "+modal);
+    var img = document.getElementById("myId123");
+    console.log("Found "+img);
+    var modalImg = document.getElementById("img01");
+    console.log("Found "+modalImg);
+    var captionText = document.getElementById("caption");
+    modal.style.display = "block";
+    modalImg.src = img.src;
+    captionText.innerHTML = img.alt;
 }
