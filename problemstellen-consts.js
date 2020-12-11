@@ -16,6 +16,11 @@ const texts = {
     luecke: 'Lücke'
 };
 
+function createPermanentLink(id) {
+    let baseURL = window.location.protocol + window.location.hostname + ":" + window.location.port + window.location.pathname;
+    return new URL("?open=" + encodeURIComponent(id), baseURL);
+}
+
 function getPSLineWeight(zoom) {
     var lineWeight = zoom - 10;
     lineWeight = (lineWeight <= 0 ? 1 : lineWeight) * 1.4;
@@ -113,11 +118,17 @@ function getLueckeTexts(geometry, properties) {
     // todo Für LineString können wir uns Richtung von Streetview ausrechnen: https://stackoverflow.com/questions/387942/google-street-view-url
     let streetViewUrl = "http://maps.google.com/maps?q=&layer=c&cbll=" + point[1] + "," + point[0];
 
+    let relatedHomepageArticle = "";
+    if ((properties.HomepageArtikel !== undefined) && (properties.HomepageArtikel != null)) {
+        relatedHomepageArticle = "<div style='margin-top:5px'><a href='" + properties.HomepageArtikel + "' target='_blank'>Siehe auch: Homepage-Artikel</a></div>";
+    }
+
     let popup = "<div style='margin-top:25px;'><div style='float:left; width:50%;'><var><b>" + typeText + "</b></var></div>" +
-        "<div style='margin-left:50%; text-align: right;margin-bottom:5px;'><var>" + id + "</var></div>" +
+        "<div style='margin-left:50%; text-align: right;margin-bottom:5px;'><var><a href='" + createPermanentLink(properties.Id) + "' title='Permanent-Link'>" + id + "</a></var></div>" +
         "<div style='margin-bottom:5px'><b>" + properties.Titel + "</b></div>" +
         "<div style='margin-bottom:5px'>" + lage + ", " + zwischen + richtung +
         "<div style='margin-top:5px'><b> Vorschlag:<br/>" + vorschlag + "</b></div>" +
+        relatedHomepageArticle +
         "<div id='myScrollMenu' class='scrollmenu'>" +
         imageList +
         "</div>" +
