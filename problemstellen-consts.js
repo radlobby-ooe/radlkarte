@@ -119,7 +119,6 @@ function getLueckeTexts(geometry, properties) {
     let streetViewUrl = "http://maps.google.com/maps?q=&layer=c&cbll=" + point[1] + "," + point[0];
 
 
-
     // todo from const, or from jira or by naming convention for every Typ on Radlobby Linz Homepage?
     let relatedTopicArticle = "";
     if (properties.Typ === "Dooring") {
@@ -167,9 +166,6 @@ function getLueckeTexts(geometry, properties) {
 }
 
 
-
-
-
 // all problemstelle image list and full screen image helper functions below...
 
 function scrollMenuScrollWheel(evt) {
@@ -180,7 +176,12 @@ function scrollMenuScrollWheel(evt) {
             // save it to the div for later usage
             scrollMenu.deltaX = 0;
         }
-        scrollMenu.deltaX += evt.deltaY;
+        console.log(evt.deltaY);
+        let delta = evt.deltaY;
+        if (evt.deltaY !== 0) {
+            if (evt.deltaY < 0) delta = -100; else delta = 100; // scroll delta is different in each browser. let's scroll by fixed value.
+        }
+        scrollMenu.deltaX += delta;
         if (scrollMenu.deltaX < 0) {
             //console.log("Resetting to 0");
             scrollMenu.deltaX = 0;
@@ -250,9 +251,9 @@ function modalImageLeftClick() {
 
 function modalImageScrollWheel(evt) {
     evt.preventDefault();
-    if (evt.deltaY>0) {
+    if (evt.deltaY > 0) {
         modalImageRightClick();
-    } else if (evt.deltaY<0) {
+    } else if (evt.deltaY < 0) {
         modalImageLeftClick();
     }
 }
