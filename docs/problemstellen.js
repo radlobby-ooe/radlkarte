@@ -149,15 +149,31 @@ function initializePSIcons() {
 var suppressMouseOverHighlight = false;
 
 function openTooltip(id) {
+    let found = false;
     psLinesFeatureGroup.eachLayer(function (layer) {
         if (layer.id === id) {
+            found = true;
             layer.openTooltip();
         }
     });
+    if (!found) {
+        psGlobal.markerLayerHighZoom.eachLayer(function (layer) {
+            if (layer.options.id === id) {
+                found = true;
+                layer.openTooltip();
+            }
+        });
+        if (!found) {
+            psGlobal.markerLayerLowZoom.eachLayer(function (layer) {
+                if (layer.options.id === id) {
+                    layer.openTooltip();
+                }
+            });
+        }
+    }
 }
 
 function openPopup(id) {
-    console.log("Opening popup "+id);
     let found = false;
     psLinesFeatureGroup.eachLayer(function (layer) {
         if (layer.id === id) {
@@ -167,7 +183,6 @@ function openPopup(id) {
     });
     if (!found) {
         psGlobal.markerLayerHighZoom.eachLayer(function (layer) {
-            console.log("Checking markers high, " + layer.options.id);
             if (layer.options.id === id) {
                 found = true;
                 layer.openPopup();
@@ -175,7 +190,6 @@ function openPopup(id) {
         });
         if (!found) {
             psGlobal.markerLayerLowZoom.eachLayer(function (layer) {
-                console.log("Checking markers low, "+layer.id);
                 if (layer.options.id === id) {
                     layer.openPopup();
                 }
@@ -195,21 +209,21 @@ function closeTooltip(id) {
 
 function flyTo(id) {
     psLinesFeatureGroup.eachLayer(function (layer) {
-        console.log("Checking lines, "+layer.id);
+        console.log("Checking lines, " + layer.id);
         if (layer.id === id) {
             rkGlobal.leafletMap.fitBounds(layer.getBounds());  // flyto does not work with immediately opening popup. lets use fitBounds!
             return;
         }
     });
     psGlobal.markerLayerHighZoom.eachLayer(function (layer) {
-        console.log("Checking markers high, "+layer.options.id);
+        console.log("Checking markers high, " + layer.options.id);
         if (layer.options.id === id) {
             rkGlobal.leafletMap.panTo(layer.getLatLng());  // flyto does not work with immediately opening popup. lets use fitBounds!
             return;
         }
     });
     psGlobal.markerLayerLowZoom.eachLayer(function (layer) {
-        console.log("Checking markers low, "+layer.id);
+        console.log("Checking markers low, " + layer.id);
         if (layer.options.id === id) {
             rkGlobal.leafletMap.panTo(layer.getLatLng());  // flyto does not work with immediately opening popup. lets use fitBounds!
             return;
@@ -311,6 +325,11 @@ function updateLineStyles() {
             .on('popupclose', function (popup) {
                 suppressMouseOverHighlight = false;
                 unhighlightLine(popup.sourceTarget.feature.properties.Id);
+                let oldUrl = window.location + "";
+                if (oldUrl.indexOf("open=") > 0) {
+                    let newUrl = oldUrl.replace("open=", "xxx=");  // to avoid focussing that position on reload, city switch, etc.
+                    window.location = newUrl;
+                }
             });
 
     }
@@ -337,10 +356,9 @@ function updateLineStyles() {
 }
 
 
-function openAfterFlyTo(){
-    //rkGlobal.leafletMap.removeEventListener('moveend', openAfterFlyTo);
+function openAfterFlyTo() {
     openPopup(psGlobal.initialOpen);
-    psGlobal.initialOpen=null;
+    psGlobal.initialOpen = null;
 }
 
 // load geojson functions

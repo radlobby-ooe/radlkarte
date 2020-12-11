@@ -27,6 +27,12 @@ html, body, #map {
 	background-color: #fff;
 }
 
+.leaflet-popup-content-wrapper {
+	background-color: #ffffff;
+	opacity: 0.9;
+}
+
+
 p, h4, li {
 	font-family: Roboto, arial, sans-serif;
 	color: #004B67;
