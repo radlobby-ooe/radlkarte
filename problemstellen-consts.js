@@ -166,7 +166,12 @@ function getLueckeTexts(geometry, properties) {
     }
 }
 
+
+
+
+
 // all problemstelle image list and full screen image helper functions below...
+
 function scrollMenuScrollWheel(evt) {
     evt.preventDefault();
     let scrollMenu = document.getElementById("myScrollMenu");
@@ -233,16 +238,34 @@ function changeModalImage(delta) {
 }
 
 function modalImageRightClick() {
-    console.log("click right");
+    //console.log("click right");
     changeModalImage(+1);
 }
 
 function modalImageLeftClick() {
-    console.log("click left");
+    //console.log("click left");
     changeModalImage(-1);
 }
 
+
+function modalImageScrollWheel(evt) {
+    evt.preventDefault();
+    if (evt.deltaY>0) {
+        modalImageRightClick();
+    } else if (evt.deltaY<0) {
+        modalImageLeftClick();
+    }
+}
+
 function enlargeImg(img, allFotos, currIndex) {
+    let modalImageElem = document.getElementById("img01");
+    if (modalImageElem != null) {
+        console.log("Adding wheel handler for modal image");
+        modalImageElem.onwheel = modalImageScrollWheel;
+    } else {
+        console.log("modal image not found for adding wheel handler");
+    }
+
     console.log("Fotos: " + allFotos);
     console.log("Index: " + currIndex);
     var modal = document.getElementById("myModal");// Get the image and insert it inside the modal
