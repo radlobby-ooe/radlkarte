@@ -207,14 +207,17 @@ function closeTooltip(id) {
     });
 }
 
+
 function flyTo(id) {
-    psLinesFeatureGroup.eachLayer(function (layer) {
-        console.log("Checking lines, " + layer.id);
-        if (layer.id === id) {
-            rkGlobal.leafletMap.fitBounds(layer.getBounds());  // flyto does not work with immediately opening popup. lets use fitBounds!
-            return;
-        }
-    });
+    if (psGlobal.initialZoom) {  // if zoom, then try to zoom to line first
+        psLinesFeatureGroup.eachLayer(function (layer) {
+            console.log("Checking lines, " + layer.id);
+            if (layer.id === id) {
+                rkGlobal.leafletMap.fitBounds(layer.getBounds());  // flyto does not work with immediately opening popup. lets use fitBounds!
+                return;
+            }
+        });
+    }
     psGlobal.markerLayerHighZoom.eachLayer(function (layer) {
         console.log("Checking markers high, " + layer.options.id);
         if (layer.options.id === id) {
@@ -311,6 +314,7 @@ function updateLineStyles() {
                 closeButton: true,
                 closeOnEscapeKey: true
             }).on('popupopen', function (popup) {
+            rkGlobal.sidebar.close();
             highlightLine(popup.sourceTarget.feature.properties.Id);
             suppressMouseOverHighlight = true;
             let scrollMenu = document.getElementById("myScrollMenu");
@@ -325,11 +329,7 @@ function updateLineStyles() {
             .on('popupclose', function (popup) {
                 suppressMouseOverHighlight = false;
                 unhighlightLine(popup.sourceTarget.feature.properties.Id);
-                let oldUrl = window.location + "";
-                if (oldUrl.indexOf("open=") > 0) {
-                    let newUrl = oldUrl.replace("open=", "xxx=");  // to avoid focussing that position on reload, city switch, etc.
-                    window.location = newUrl;
-                }
+                clearInitialOpenFromUrl();
             });
 
     }
@@ -351,15 +351,42 @@ function updateLineStyles() {
     if (psGlobal.initialOpen != null) {
         let id = psGlobal.initialOpen;
         flyTo(psGlobal.initialOpen, false);
-        rkGlobal.leafletMap.once('moveend', openAfterFlyTo);
+        rkGlobal.leafletMap.once('moveend', openOrZoomAfterFlyTo);
     }
 }
 
 
-function openAfterFlyTo() {
-    openPopup(psGlobal.initialOpen);
+function openOrZoomAfterFlyTo() {
+    if (!psGlobal.initialZoom) {  // only if open, not on zoom
+        openPopup(psGlobal.initialOpen);
+    } else {
+        highlightLine(psGlobal.initialOpen);
+        suppressMouseOverHighlight = true;
+        openTooltip(psGlobal.initialOpen);
+        rkGlobal.leafletMap.once('click', closeAfterZoom);
+    }
     psGlobal.initialOpen = null;
 }
+
+function closeAfterZoom() {
+    suppressMouseOverHighlight = false;
+    psLinesFeatureGroup.eachLayer(function (layer) {
+        layer.closeTooltip();
+        unhighlightLine(layer.id);
+    });
+    clearInitialOpenFromUrl();
+}
+
+function clearInitialOpenFromUrl() {
+    let oldUrl = window.location + "";
+    if ((oldUrl.indexOf("open=") > 0) || (oldUrl.indexOf("zoom=") > 0)) {
+        // to avoid focussing that position on reload, city switch, etc.
+        // todo full clear
+        let newUrl = oldUrl.replace("open=", "xxx=").replace("zoom=", "xxx=");
+        window.location = newUrl;
+    }
+}
+
 
 // load geojson functions
 // we already create markers in the middle of the lines here, because they do not have dynamic styling like lines
@@ -396,9 +423,24 @@ function createProblemstellenMarkerLayers(geojsonPoint, callForMarker) {
 
 // called by radlkarte
 function setProblemstellenGeojson(problemStellenFile) {
+
+
+    // check permalink
     const urlParams = new URLSearchParams(window.location.search);
-    const openId = urlParams.get('open');
-    console.log("URL param open=" + openId);
+    let openId = "";
+
+    let openParam = urlParams.get('open');
+    if (openParam != null) {
+        console.log("URL param open=" + openParam);
+        openId = openParam;
+        psGlobal.initialZoom = false;  // open the popup
+    } else {
+        let zoomParam = urlParams.get('zoom');
+        console.log("URL param zoom=" + zoomParam);
+        openId = zoomParam;
+        psGlobal.initialZoom = true; // just zoom
+    }
+
     psGlobal.initialOpen = openId;
     psGlobal.psTypes = {};
     if (problemStellenFile === undefined) {

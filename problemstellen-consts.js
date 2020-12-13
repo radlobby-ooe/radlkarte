@@ -16,9 +16,9 @@ const texts = {
     luecke: 'Lücke'
 };
 
-function createPermanentLink(id) {
+function createPermanentLink(queryKey, id) {
     let baseURL = window.location.protocol + window.location.hostname + ":" + window.location.port + window.location.pathname;
-    return new URL("?open=" + encodeURIComponent(id), baseURL);
+    return new URL("?" + queryKey + "=" + encodeURIComponent(id), baseURL);
 }
 
 function getPSLineWeight(zoom) {
@@ -146,13 +146,20 @@ function getLueckeTexts(geometry, properties) {
     }
 
 
-    let popup = "<div style='margin-top:25px;'>"+
+    let zoomLink = createPermanentLink("zoom", properties.Id);
+    let openLink = createPermanentLink("open", properties.Id);
+    let mailLink = "mailTo:linz@radlobby.at?subject="+encodeURIComponent("Problemstelle "+properties.Id)+"&body="+encodeURIComponent(openLink);
+    let popup = "<div style='margin-top:25px;'>" +
         "<div style='background: #dddddd;padding: 5px;'><div style='float:left; width:50%;'><var><b>" + typeText + "</b></var></div>" +
-        "<div style='margin-left:50%; text-align: right;'><var><a href='" + createPermanentLink(properties.Id) + "' title='Permanent-Link'>" + id + "</a></var></div></div>" +
+        "<div style='margin-left:50%; text-align: right;'>" +
+        "<a onclick='copyToClipboard(\"" + zoomLink + "\")' title='Zoom-Link (Klicken, um zu kopieren)'><i class='fa fa-search-plus' style='margin-right:5px;'></i></a>" +
+        "<a onclick='copyToClipboard(\"" + openLink + "\")' title='Info-Link (Klicken, um zu kopieren)'><i class='fa fa-link' style='margin-right:5px;'></i></a>" +
+        "<a href='" + mailLink + "' title='Info-Link (Klicken, um zu kopieren)'><i class='fa fa-envelope' style='margin-right:5px;'></i></a>" +
+        "<a href='" + openLink + "' title='Info-Link'><var>" + id + "</var></a></div></div>" +
         "<div style='padding-left:5px;padding-top:5px;padding-right:5px; background: #ffffff'><b>" + properties.Titel + "</b></div>" +
         //"<div style='margin-bottom:5px'>" + lage + ", " + zwischen + richtung +
-        (problem.length>0?"<div style='padding:5px; max-height:75px;overflow-y:auto'>" + problem + "</div>":"") +
-        (vorschlag.length>0?"<div style='padding:5px;margin-top:5px;max-height:75px;overflow-y:auto'>Vorschlag: " + vorschlag + "</div>":"") +
+        (problem.length > 0 ? "<div style='padding:5px; max-height:75px;overflow-y:auto'>" + problem + "</div>" : "") +
+        (vorschlag.length > 0 ? "<div style='padding:5px;margin-top:5px;max-height:75px;overflow-y:auto'>Vorschlag: " + vorschlag + "</div>" : "") +
         relatedArticles +
         "<div id='myScrollMenu' class='scrollmenu'>" +
         imageList +
@@ -167,6 +174,14 @@ function getLueckeTexts(geometry, properties) {
         "popup": popup,
         "tooltip": tooltip
     }
+}
+
+function copyToClipboard(text) {
+    var $temp = $("<input>");
+    $("body").append($temp);
+    $temp.val(text).select();
+    document.execCommand("copy");
+    $temp.remove();
 }
 
 

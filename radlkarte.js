@@ -471,6 +471,13 @@ function loadLeaflet() {
 		container: 'sidebar',
 		position: 'left'
 	}).addTo(rkGlobal.leafletMap);
+	rkGlobal.sidebar = sidebar;
+	// open sidebar,if no permalink
+	if (window.location.search.length===0) {
+		// todo and if no hash
+		rkGlobal.sidebar.open('psmain');
+	}
+
 	if(window.innerWidth < rkGlobal.fullWidthThreshold) {
 		sidebar.close();
 	}
