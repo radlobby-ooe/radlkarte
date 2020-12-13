@@ -65,6 +65,7 @@ function getVonBisFromGeometry(geometry) {
 }
 
 function getLueckeTexts(geometry, properties) {
+    // assuming all fields are "" if not set, no nulls
     const typeText = properties.Typ;
 
     let lage = properties.Lage;
@@ -79,11 +80,13 @@ function getLueckeTexts(geometry, properties) {
         richtung = ", Fahrtrichtung: " + richtung;
     }
     let vorschlag = properties.Vorschlag;
+    let problem = properties.Problem;
     let id = properties.Id;
 
+    // zwischen
     let zwischen = "";
-    if (von != null) {
-        if (bis != null) {
+    if (von !== "") {
+        if (bis !== "") {
             zwischen = "zwischen " + von + " und " + bis;
         } else {
             zwischen = "ab " + von;
@@ -100,7 +103,7 @@ function getLueckeTexts(geometry, properties) {
         for (let i = 0; i < properties.Fotos.length; i++) {
             let photoUrl = ImagePrefix + "thumb-" + properties.Fotos[i];
             let stringFotos = JSON.stringify(properties.Fotos);
-            imageList += "<img id='myId123' src='" + photoUrl + "' style='margin:20px;' class='thumbImage' onclick='enlargeImg(this," + stringFotos + ", " + i + ");'/>";
+            imageList += "<img id='myId123' src='" + photoUrl + "' style='margin:10px;' class='thumbImage' onclick='enlargeImg(this," + stringFotos + ", " + i + ");'/>";
         }
     } else {
         let photoUrl = psGlobal.icons[properties.Typ].options.iconUrl;
@@ -128,27 +131,28 @@ function getLueckeTexts(geometry, properties) {
     }
 
     let relatedHomepageArticle = "";
-    if ((properties.HomepageArtikel !== undefined) && (properties.HomepageArtikel != null)) {
+    if (properties.HomepageArtikel !== "") {
         relatedHomepageArticle = properties.HomepageArtikel;
     }
     let relatedArticles = "";
     if ((relatedHomepageArticle !== "") || (relatedTopicArticle !== "")) {
-        relatedArticles = "<div style='margin-top:5px'>Siehe auch: ";
+        relatedArticles = "<div style='margin-top:5px;padding-left:5px;'>";
         if (relatedHomepageArticle !== "") {
-            relatedArticles += "<a href='" + relatedHomepageArticle + "' target='_blank'>Artikel zur Problemstelle</a>&nbsp;";
-        }
-        if (relatedTopicArticle !== "") {
-            relatedArticles += "<a href='" + relatedTopicArticle + "' target='_blank'>Zum Thema</a>";
+            relatedArticles += "<a href='" + relatedHomepageArticle + "' target='_blank'>Mehr zur Problemstelle</a>&nbsp;";
+        } else if (relatedTopicArticle !== "") { // only if no concrete article
+            relatedArticles += "<a href='" + relatedTopicArticle + "' target='_blank'>Mehr zum Thema</a>";
         }
         relatedArticles += "</div>"
     }
 
 
-    let popup = "<div style='margin-top:25px;'><div style='float:left; width:50%;'><var><b>" + typeText + "</b></var></div>" +
-        "<div style='margin-left:50%; text-align: right;margin-bottom:5px;'><var><a href='" + createPermanentLink(properties.Id) + "' title='Permanent-Link'>" + id + "</a></var></div>" +
-        "<div style='margin-bottom:5px'><b>" + properties.Titel + "</b></div>" +
-        "<div style='margin-bottom:5px'>" + lage + ", " + zwischen + richtung +
-        "<div style='margin-top:5px'><b> Vorschlag:<br/>" + vorschlag + "</b></div>" +
+    let popup = "<div style='margin-top:25px;'>"+
+        "<div style='background: #dddddd;padding: 5px;'><div style='float:left; width:50%;'><var><b>" + typeText + "</b></var></div>" +
+        "<div style='margin-left:50%; text-align: right;'><var><a href='" + createPermanentLink(properties.Id) + "' title='Permanent-Link'>" + id + "</a></var></div></div>" +
+        "<div style='padding-left:5px;padding-top:5px;padding-right:5px; background: #ffffff'><b>" + properties.Titel + "</b></div>" +
+        //"<div style='margin-bottom:5px'>" + lage + ", " + zwischen + richtung +
+        (problem.length>0?"<div style='padding:5px; max-height:75px;overflow-y:auto'>" + problem + "</div>":"") +
+        (vorschlag.length>0?"<div style='padding:5px; max-height:75px;overflow-y:auto'>Vorschlag: " + vorschlag + "</div>":"") +
         relatedArticles +
         "<div id='myScrollMenu' class='scrollmenu'>" +
         imageList +
