@@ -152,10 +152,10 @@ function getLueckeTexts(geometry, properties) {
     let popup = "<div style='margin-top:25px;'>" +
         "<div style='background: #dddddd;padding: 5px;'><div style='float:left; width:50%;'><var><b>" + typeText + "</b></var></div>" +
         "<div style='margin-left:50%; text-align: right;'>" +
-        "<a onclick='copyToClipboard(\"" + zoomLink + "\")' title='Zoom-Link (Klicken, um zu kopieren)'><i class='fa fa-search-plus' style='margin-right:5px;'></i></a>" +
-        "<a onclick='copyToClipboard(\"" + openLink + "\")' title='Info-Link (Klicken, um zu kopieren)'><i class='fa fa-link' style='margin-right:5px;'></i></a>" +
-        "<a href='" + mailLink + "' title='Info-Link (Klicken, um zu kopieren)'><i class='fa fa-envelope' style='margin-right:5px;'></i></a>" +
-        "<a href='" + openLink + "' title='Info-Link'><var>" + id + "</var></a></div></div>" +
+        "<a onclick='copyToClipboard(\"" + zoomLink + "\")' title='Positions-Link der Problemstelle \nKlicken, um zu kopieren...'><i class='fa fa-search-plus' style='margin-right:10px;'></i></a>" +
+        "<a onclick='copyToClipboard(\"" + openLink + "\")' title='Details-Link der Problemstelle \nKlicken, um zu kopieren...'><i class='fa fa-link' style='margin-right:10px;'></i></a>" +
+        "<a href='" + mailLink + "' title='Link zur Problemstelle mailen'><i class='fa fa-envelope' style='margin-right:10px;'></i></a>" +
+        "<a href='" + openLink + "' title='Details-Link der Problemstelle'><var>" + id + "</var></a></div></div>" +
         "<div style='padding-left:5px;padding-top:5px;padding-right:5px; background: #ffffff'><b>" + properties.Titel + "</b></div>" +
         //"<div style='margin-bottom:5px'>" + lage + ", " + zwischen + richtung +
         (problem.length > 0 ? "<div style='padding:5px; max-height:75px;overflow-y:auto'>" + problem + "</div>" : "") +
