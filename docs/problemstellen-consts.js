@@ -152,7 +152,7 @@ function getLueckeTexts(geometry, properties) {
         "<div style='padding-left:5px;padding-top:5px;padding-right:5px; background: #ffffff'><b>" + properties.Titel + "</b></div>" +
         //"<div style='margin-bottom:5px'>" + lage + ", " + zwischen + richtung +
         (problem.length>0?"<div style='padding:5px; max-height:75px;overflow-y:auto'>" + problem + "</div>":"") +
-        (vorschlag.length>0?"<div style='padding:5px; max-height:75px;overflow-y:auto'>Vorschlag: " + vorschlag + "</div>":"") +
+        (vorschlag.length>0?"<div style='padding:5px;margin-top:5px;max-height:75px;overflow-y:auto'>Vorschlag: " + vorschlag + "</div>":"") +
         relatedArticles +
         "<div id='myScrollMenu' class='scrollmenu'>" +
         imageList +
