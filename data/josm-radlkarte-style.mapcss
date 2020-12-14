@@ -69,3 +69,11 @@ node[warning=yes] {
     icon-image: "warning-small.png";
     text: auto;
 }
+
+way[proid] {
+    casing-width: 7;
+    casing-color: #ff0000;
+    casing-opacity: 0.75;
+    width: 3;
+    dashes: 5,5;
+}
