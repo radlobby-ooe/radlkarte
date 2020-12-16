@@ -12,10 +12,6 @@ const lueckeLineStyleHighlight = {
     opacity: '0.8'
 };
 
-const texts = {
-    luecke: 'Lücke'
-};
-
 function createPermanentLink(queryKey, id) {
     let baseURL = window.location.protocol + window.location.hostname + ":" + window.location.port + window.location.pathname;
     return new URL("?" + queryKey + "=" + encodeURIComponent(id), baseURL);
