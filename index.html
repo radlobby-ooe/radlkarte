@@ -203,7 +203,7 @@
 				</h1>
 				<h2>Impressum</h2>
 				<p>
-					<img src="css/radlobby-linz.png" width="150" alt="Radlobby Linz" />
+					<img src="css/radlobby-linz.png" width="150" alt="Radlobby Linz" id="radlobby-linz-logo-clicker"/>
 				</p>
 				<p>
 					<a href="https://www.radlobby.at/linz" target="_blank">Homepage</a> | <a href="mailto:linz@radlobby.at?subject=Kommentar%20zur%20Problemstellen-Karte%20Linz">Mail</a><br/>
@@ -225,5 +225,22 @@
 	<script>
 		loadLeaflet();
 	</script>
+
+
+<script>
+	let imgRLogo = document.getElementById("radlobby-linz-logo-clicker");
+	if (imgRLogo!=null) {
+		imgRLogo.addEventListener('click', function (evt) {
+			if (evt.detail === 3) {
+				document.cookie = "jirabutton=true; path=./";
+				location.reload();
+			}
+		});
+		imgRLogo.addEventListener('wheel', function (evt) {
+			document.cookie = "jirabutton=; path=./";
+			location.reload();
+		});
+	}
+</script>
 </body>
 </html>

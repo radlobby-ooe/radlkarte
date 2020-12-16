@@ -17,6 +17,10 @@ function createPermanentLink(queryKey, id) {
     return new URL("?" + queryKey + "=" + encodeURIComponent(id), baseURL);
 }
 
+function createJiraLink(id) {
+    return "https://radlobbylinz.atlassian.net/browse/" + encodeURIComponent(id);
+}
+
 function getPSLineWeight(zoom) {
     var lineWeight = zoom - 10;
     lineWeight = (lineWeight <= 0 ? 1 : lineWeight) * 1.4;
@@ -141,12 +145,21 @@ function getLueckeTexts(geometry, properties) {
         relatedArticles += "</div>"
     }
 
+    let cookies = document.cookie;
+    console.log("Cookies: "+cookies);
+    let showJiraButton = cookies.indexOf("jirabutton=true") !== -1;
+    let jiraLink = createJiraLink(properties.Id);
+
 
     let zoomLink = createPermanentLink("zoom", properties.Id);
     let openLink = createPermanentLink("open", properties.Id);
-    let mailLink = "mailTo:linz@radlobby.at?subject="+encodeURIComponent("Problemstelle "+properties.Id)+"&body="+encodeURIComponent(openLink);
+    let mailLink = "mailTo:linz@radlobby.at?subject=" + encodeURIComponent("Problemstelle " + properties.Id) + "&body=" + encodeURIComponent(openLink);
     let popup = "<div style='margin-top:25px;'>" +
-        "<div style='background: #dddddd;padding: 5px;'><div style='float:left; width:50%;'><var><b>" + typeText + "</b></var></div>" +
+        "<div style='background: #dddddd;padding: 5px;'><div style='float:left; width:50%;'>"+
+        (showJiraButton ? "<a href='" + jiraLink + "' title='Klicken, um in Jira zu editieren...' target='_blank'>" : "") +
+        "<var><b>" + typeText + "</b></var>" +
+        (showJiraButton ? "<i class='fa fa-edit' style='margin-left:10px;'></i></a>" : "") +
+        "</div>" +
         "<div style='margin-left:50%; text-align: right;'>" +
         "<a onclick='copyToClipboard(\"" + zoomLink + "\")' title='Positions-Link der Problemstelle \nKlicken, um zu kopieren...'><i class='fa fa-search-plus' style='margin-right:10px;'></i></a>" +
         "<a onclick='copyToClipboard(\"" + openLink + "\")' title='Details-Link der Problemstelle \nKlicken, um zu kopieren...'><i class='fa fa-link' style='margin-right:10px;'></i></a>" +
