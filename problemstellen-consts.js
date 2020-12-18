@@ -140,13 +140,13 @@ function getLueckeTexts(geometry, properties) {
         if (relatedHomepageArticle !== "") {
             relatedArticles += "<a href='" + relatedHomepageArticle + "' target='_blank'>Mehr zur Problemstelle</a>&nbsp;";
         } else if (relatedTopicArticle !== "") { // only if no concrete article
-            relatedArticles += "<a href='" + relatedTopicArticle + "' target='_blank'>Mehr zum Thema</a>";
+            relatedArticles += "<a href='" + relatedTopicArticle + "' target='_blank'>Mehr zum Thema " + typeText + "</a>";
         }
         relatedArticles += "</div>"
     }
 
     let cookies = document.cookie;
-    console.log("Cookies: "+cookies);
+    console.log("Cookies: " + cookies);
     let showJiraButton = cookies.indexOf("jirabutton=true") !== -1;
     let jiraLink = createJiraLink(properties.Id);
 
@@ -155,10 +155,9 @@ function getLueckeTexts(geometry, properties) {
     let openLink = createPermanentLink("open", properties.Id);
     let mailLink = "mailTo:linz@radlobby.at?subject=" + encodeURIComponent("Problemstelle " + properties.Id) + "&body=" + encodeURIComponent(openLink);
     let popup = "<div style='margin-top:25px;'>" +
-        "<div style='background: #dddddd;padding: 5px;'><div style='float:left; width:50%;'>"+
-        (showJiraButton ? "<a href='" + jiraLink + "' title='Klicken, um in Jira zu editieren...' target='_blank'>" : "") +
+        "<div style='background: #dddddd;padding: 5px;'><div style='float:left; width:50%;'>" +
         "<var><b>" + typeText + "</b></var>" +
-        (showJiraButton ? "<i class='fa fa-edit' style='margin-left:10px;'></i></a>" : "") +
+        (showJiraButton ? "&nbsp;&nbsp;<a href='" + jiraLink + "' title='Klicken, um in Jira zu editieren...' target='_blank'>" + id + "<i class='fa fa-edit' style='margin-left:2px;'></i></a>" : "") +
         "</div>" +
         "<div style='margin-left:50%; text-align: right;'>" +
         "<a onclick='copyToClipboard(\"" + zoomLink + "\")' title='Positions-Link der Problemstelle \nKlicken, um zu kopieren...'><i class='fa fa-search-plus' style='margin-right:10px;'></i></a>" +
