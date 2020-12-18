@@ -41,7 +41,7 @@ function getPSLineStyle(zoom) {
 
 function getLatLongFromGeometry(geometry) {
     if (geometry.type === "LineString") {
-        let point = geometry.coordinates[Math.floor(geojson.geometry.coordinates.length / 2)];
+        let point = geometry.coordinates[Math.floor(geometry.coordinates.length / 2)];
         return point[1] + "," + point[0];
     } else if (geometry.type === "Point") {
         return geometry.coordinates[1] + "," + geometry.coordinates[0];
