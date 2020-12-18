@@ -70,7 +70,7 @@ node[warning=yes] {
     text: auto;
 }
 
-way[proid] {
+way[probId] {
     casing-width: 7;
     casing-color: #ff0000;
     casing-opacity: 0.75;
