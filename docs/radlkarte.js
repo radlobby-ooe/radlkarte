@@ -484,6 +484,7 @@ function loadLeaflet() {
 
 	initializeIcons();
 	initializePS();
+	initializeMelden();
 
 	// initialize hash, this causes loading of the default region
 	// and positioning of the map
