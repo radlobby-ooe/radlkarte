@@ -495,9 +495,13 @@ function loadProblemstellenGeojson() {
                         // lines will be added to map in style function
                         psGlobal.psGeoJsons.push(geojson);
                         // If we got a linestring, the following will add additional marker "in the middle" of the LineString
+                        let options = {units: 'meters'};
+                        let len = turf.length(geojson, options);
+                        let p2Coord = turf.along(geojson, 0, options).geometry.coordinates;
+                        //let p2Coord = geojson.geometry.coordinates[Math.floor(geojson.geometry.coordinates.length / 2)];
                         let markerLayers = createProblemstellenMarkerLayers({
                             "geometry": {
-                                "coordinates": geojson.geometry.coordinates[Math.floor(geojson.geometry.coordinates.length / 2)],
+                                "coordinates": p2Coord,
                                 "type": "Point"
                             },
                             "properties": geojson.properties,

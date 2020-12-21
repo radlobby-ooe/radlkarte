@@ -64,6 +64,15 @@ function getVonBisFromGeometry(geometry) {
     return "";
 }
 
+// creates a streeview url with the given point p, heading to pNext
+function createStreetViewUrl(p, pNext) {
+    // todo Für LineString könnten wir uns Richtung von Streetview ausrechnen: https://stackoverflow.com/questions/387942/google-street-view-url
+    console.log("Bearing from "+p+" to "+pNext);
+    var bearing = turf.bearing(p, pNext);
+    //return "http://maps.google.com/maps?q=&layer=c&cbll=" + p[1] + "," + p[0]+"&cbl=,"+bearing;
+    return "http://www.google.com/maps?layer=c&cbll="+p[1]+","+p[0]+"&cbp=,"+bearing+",,,0";
+}
+
 function getLueckeTexts(geometry, properties) {
     // assuming all fields are "" if not set, no nulls
     const typeText = properties.Typ;
@@ -83,7 +92,7 @@ function getLueckeTexts(geometry, properties) {
     let problem = properties.Problem;
     let id = properties.Id;
 
-    // zwischen
+/*    // zwischen
     let zwischen = "";
     if (von !== "") {
         if (bis !== "") {
@@ -95,6 +104,18 @@ function getLueckeTexts(geometry, properties) {
         if (geometry.type === "LineString") {
             let positions = getVonBisFromGeometry(geometry);
             zwischen = "zwischen " + positions.von + " und " + positions.bis;
+        }
+    }
+*/
+
+    let laenge = "";
+    if (geometry.type === "LineString") {
+        let len = turf.length(geometry, {units: 'kilometers'});
+        console.log("Länge des LineStrings = "+len+ "km");
+        if (len<1.0) {
+            laenge = "ca. " + (turf.round(len, 2)*1000) + " Meter";
+        } else {
+            laenge = "ca. " + turf.round(len, 1) + " Kilometer";
         }
     }
 
@@ -110,16 +131,34 @@ function getLueckeTexts(geometry, properties) {
         imageList = "<img id='myId123' src='" + photoUrl + "' style='margin:20px;' class='thumbImage' onclick='enlargeImg(this, [], 0);'/>";
     }
 
-    let point;
+    let streetViewString = "";
     if (geometry.type === "LineString") {
-        point = geometry.coordinates[Math.floor(geometry.coordinates.length / 2)];
+        if (geometry.coordinates.length>1) {
+            let p0 = geometry.coordinates[0];
+            let options = {units: 'meters'};
+            let len = turf.length(geometry, options);
+            let p2 = turf.along(geometry, len / 2, options).geometry.coordinates;
+            let p2Next = turf.along(geometry, len / 2 + 1, options).geometry.coordinates;
+
+            let s0 = createStreetViewUrl(geometry.coordinates[0], geometry.coordinates[1]);
+            let s2 = createStreetViewUrl(p2, p2Next);
+            let sN = createStreetViewUrl(geometry.coordinates[geometry.coordinates.length - 1], geometry.coordinates[geometry.coordinates.length - 2]);
+            streetViewString = "<div style='text-align: center; font-size: smaller;' title='Öffnet neues Fenster mit Street View bei Beginn, Mitte oder Ende der Problemstelle'>Google Street View: <a href='" + s0 + "' target='_blank'>Beginn</a> | " +
+                "<a href='" + s2 + "' target='_blank'>Mitte</a> | " +
+                "<a href='" + sN + "' target='_blank'>Ende</a>" +
+                "</div>";
+        } else {  // linestring with one coordinate? ok...
+            let p0 = geometry.coordinates[0];
+            let streetViewUrl =  "http://maps.google.com/maps?q=&layer=c&cbll=" + p0[1] + "," + p0[0];
+            streetViewString = "<div style='text-align: center; font-size: smaller;' title='Öffnet neues Fenster mit Street View bei der Problemstelle'><a href='" + streetViewUrl + "' target='_blank'>Google Street View</a></div>";
+        }
     } else if (geometry.type === "Point") {
-        point = geometry.coordinates[0];
+        let p0 = geometry.coordinates[0];
+        let streetViewUrl =  "http://maps.google.com/maps?q=&layer=c&cbll=" + p0[1] + "," + p0[0];
+        streetViewString = "<div style='text-align: center; font-size: smaller;' title='Öffnet neues Fenster mit Street View bei der Problemstelle'><a href='" + streetViewUrl + "' target='_blank'>Google Street View</a></div>";
     } else {
         // ?
     }
-    // todo Für LineString könnten wir uns Richtung von Streetview ausrechnen: https://stackoverflow.com/questions/387942/google-street-view-url
-    let streetViewUrl = "http://maps.google.com/maps?q=&layer=c&cbll=" + point[1] + "," + point[0];
 
 
     // todo from const, or from jira or by naming convention for every Typ on Radlobby Linz Homepage?
@@ -166,13 +205,14 @@ function getLueckeTexts(geometry, properties) {
         "<a href='" + openLink + "' title='Details-Link der Problemstelle'><var>" + id + "</var></a></div></div>" +
         "<div style='padding-left:5px;padding-top:5px;padding-right:5px; background: #ffffff'><b>" + properties.Titel + "</b></div>" +
         //"<div style='margin-bottom:5px'>" + lage + ", " + zwischen + richtung +
+        (laenge.length > 0 ? "<div style='padding:5px;margin-top:5px;'>Länge: " + laenge + "</div>" : "") +
         (problem.length > 0 ? "<div style='padding:5px; max-height:75px;overflow-y:auto'>" + problem + "</div>" : "") +
         (vorschlag.length > 0 ? "<div style='padding:5px;margin-top:5px;max-height:75px;overflow-y:auto'>Vorschlag: " + vorschlag + "</div>" : "") +
         relatedArticles +
         "<div id='myScrollMenu' class='scrollmenu'>" +
         imageList +
         "</div>" +
-        "<div style='text-align: center; font-size: smaller;'><a href='" + streetViewUrl + "' target='_blank'>Neues Fenster mit Google Street View</a></div>";
+        streetViewString;
 
     let tooltip =
         "<div style='float:left; width:50%;'><b>" + typeText + "</b></div>" +

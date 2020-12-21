@@ -11,7 +11,7 @@ function initializeMelden() {
     rkGlobal.leafletMap.addLayer(mGlobal.editableLayers);
 
     var drawPluginOptions = {
-        position: 'topleft',
+        position: 'bottomleft',
         draw: {
             polyline: {
                 shapeOptions: {
