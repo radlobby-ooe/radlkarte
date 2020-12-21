@@ -497,8 +497,8 @@ function loadProblemstellenGeojson() {
                         // If we got a linestring, the following will add additional marker "in the middle" of the LineString
                         let options = {units: 'meters'};
                         let len = turf.length(geojson, options);
-                        let p2Coord = turf.along(geojson, 0, options).geometry.coordinates;
-                        //let p2Coord = geojson.geometry.coordinates[Math.floor(geojson.geometry.coordinates.length / 2)];
+                        let p2Coord = turf.along(geojson, len/2, options).geometry.coordinates;
+                        //let p2Coord = geojson.geometry.coordinates[Math.floor(geojson.geometry.coordinates.length / 2)];  // fast: just take middle point in coord array
                         let markerLayers = createProblemstellenMarkerLayers({
                             "geometry": {
                                 "coordinates": p2Coord,
