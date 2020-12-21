@@ -67,7 +67,6 @@ function getVonBisFromGeometry(geometry) {
 // creates a streeview url with the given point p, heading to pNext
 function createStreetViewUrl(p, pNext) {
     // todo Für LineString könnten wir uns Richtung von Streetview ausrechnen: https://stackoverflow.com/questions/387942/google-street-view-url
-    console.log("Bearing from "+p+" to "+pNext);
     var bearing = turf.bearing(p, pNext);
     //return "http://maps.google.com/maps?q=&layer=c&cbll=" + p[1] + "," + p[0]+"&cbl=,"+bearing;
     return "http://www.google.com/maps?layer=c&cbll="+p[1]+","+p[0]+"&cbp=,"+bearing+",,,0";
@@ -111,7 +110,6 @@ function getLueckeTexts(geometry, properties) {
     let laenge = "";
     if (geometry.type === "LineString") {
         let len = turf.length(geometry, {units: 'kilometers'});
-        console.log("Länge des LineStrings = "+len+ "km");
         if (len<1.0) {
             laenge = "ca. " + (turf.round(len, 2)*1000) + " Meter";
         } else {
