@@ -69,7 +69,7 @@ function createStreetViewUrl(p, pNext) {
     // todo Für LineString könnten wir uns Richtung von Streetview ausrechnen: https://stackoverflow.com/questions/387942/google-street-view-url
     var bearing = turf.bearing(p, pNext);
     //return "http://maps.google.com/maps?q=&layer=c&cbll=" + p[1] + "," + p[0]+"&cbl=,"+bearing;
-    return "http://www.google.com/maps?layer=c&cbll="+p[1]+","+p[0]+"&cbp=,"+bearing+",,,0";
+    return "http://www.google.com/maps?layer=c&cbll=" + p[1] + "," + p[0] + "&cbp=," + bearing + ",,,0";
 }
 
 function getLueckeTexts(geometry, properties) {
@@ -91,27 +91,27 @@ function getLueckeTexts(geometry, properties) {
     let problem = properties.Problem;
     let id = properties.Id;
 
-/*    // zwischen
-    let zwischen = "";
-    if (von !== "") {
-        if (bis !== "") {
-            zwischen = "zwischen " + von + " und " + bis;
+    /*    // zwischen
+        let zwischen = "";
+        if (von !== "") {
+            if (bis !== "") {
+                zwischen = "zwischen " + von + " und " + bis;
+            } else {
+                zwischen = "ab " + von;
+            }
         } else {
-            zwischen = "ab " + von;
+            if (geometry.type === "LineString") {
+                let positions = getVonBisFromGeometry(geometry);
+                zwischen = "zwischen " + positions.von + " und " + positions.bis;
+            }
         }
-    } else {
-        if (geometry.type === "LineString") {
-            let positions = getVonBisFromGeometry(geometry);
-            zwischen = "zwischen " + positions.von + " und " + positions.bis;
-        }
-    }
-*/
+    */
 
     let laenge = "";
     if (geometry.type === "LineString") {
         let len = turf.length(geometry, {units: 'kilometers'});
-        if (len<1.0) {
-            laenge = "ca. " + (turf.round(len, 2)*1000) + " Meter";
+        if (len < 1.0) {
+            laenge = "ca. " + (turf.round(len, 2) * 1000) + " Meter";
         } else {
             laenge = "ca. " + turf.round(len, 1) + " Kilometer";
         }
@@ -131,7 +131,7 @@ function getLueckeTexts(geometry, properties) {
 
     let streetViewString = "";
     if (geometry.type === "LineString") {
-        if (geometry.coordinates.length>1) {
+        if (geometry.coordinates.length > 1) {
             let p0 = geometry.coordinates[0];
             let options = {units: 'meters'};
             let len = turf.length(geometry, options);
@@ -147,12 +147,12 @@ function getLueckeTexts(geometry, properties) {
                 "</div>";
         } else {  // linestring with one coordinate? ok...
             let p0 = geometry.coordinates[0];
-            let streetViewUrl =  "http://maps.google.com/maps?q=&layer=c&cbll=" + p0[1] + "," + p0[0];
+            let streetViewUrl = "http://maps.google.com/maps?q=&layer=c&cbll=" + p0[1] + "," + p0[0];
             streetViewString = "<div style='text-align: center; font-size: smaller;' title='Öffnet neues Fenster mit Street View bei der Problemstelle'><a href='" + streetViewUrl + "' target='_blank'>Google Street View</a></div>";
         }
     } else if (geometry.type === "Point") {
         let p0 = geometry.coordinates[0];
-        let streetViewUrl =  "http://maps.google.com/maps?q=&layer=c&cbll=" + p0[1] + "," + p0[0];
+        let streetViewUrl = "http://maps.google.com/maps?q=&layer=c&cbll=" + p0[1] + "," + p0[0];
         streetViewString = "<div style='text-align: center; font-size: smaller;' title='Öffnet neues Fenster mit Street View bei der Problemstelle'><a href='" + streetViewUrl + "' target='_blank'>Google Street View</a></div>";
     } else {
         // ?
@@ -185,6 +185,7 @@ function getLueckeTexts(geometry, properties) {
     let cookies = document.cookie;
     console.log("Cookies: " + cookies);
     let showJiraButton = cookies.indexOf("jirabutton=true") !== -1;
+    let moreButtons = showJiraButton;
     let jiraLink = createJiraLink(properties.Id);
 
 
@@ -192,15 +193,17 @@ function getLueckeTexts(geometry, properties) {
     let openLink = createPermanentLink("open", properties.Id);
     let mailLink = "mailTo:linz@radlobby.at?subject=" + encodeURIComponent("Problemstelle " + properties.Id) + "&body=" + encodeURIComponent(openLink);
     let popup = "<div style='margin-top:25px;'>" +
-        "<div style='background: #dddddd;padding: 5px;'><div style='float:left; width:50%;'>" +
+        "<div style='background: #dddddd;padding: 5px;'><div style='float:left; width:20%;'>" +
         "<var><b>" + typeText + "</b></var>" +
-        (showJiraButton ? "&nbsp;&nbsp;<a href='" + jiraLink + "' title='Klicken, um in Jira zu editieren...' target='_blank'>" + id + "<i class='fa fa-edit' style='margin-left:2px;'></i></a>" : "") +
         "</div>" +
-        "<div style='margin-left:50%; text-align: right;'>" +
-        "<a onclick='copyToClipboard(\"" + zoomLink + "\")' title='Positions-Link der Problemstelle \nKlicken, um zu kopieren...'><i class='fa fa-search-plus' style='margin-right:10px;'></i></a>" +
-        "<a onclick='copyToClipboard(\"" + openLink + "\")' title='Details-Link der Problemstelle \nKlicken, um zu kopieren...'><i class='fa fa-link' style='margin-right:10px;'></i></a>" +
-        "<a href='" + mailLink + "' title='Link zur Problemstelle mailen'><i class='fa fa-envelope' style='margin-right:10px;'></i></a>" +
-        "<a href='" + openLink + "' title='Details-Link der Problemstelle'><var>" + id + "</var></a></div></div>" +
+        "<div style='margin-left:20%; text-align: right;'>" +
+        "<a onclick='openSendImage(\"" + properties.Id + "\")' title='Foto oder Feedback senden'><i class='fa fa-commenting' style='margin-right:10px;'></i></a>" +
+        //(moreButtons ? "<a onclick='copyToClipboard(\"" + zoomLink + "\")' title='Positions-Link der Problemstelle \nKlicken, um zu kopieren...'><i class='fa fa-search-plus' style='margin-right:10px;'></i></a>" : "") +
+        //(moreButtons ? "<a onclick='copyToClipboard(\"" + openLink + "\")' title='Details-Link der Problemstelle \nKlicken, um zu kopieren...'><i class='fa fa-link' style='margin-right:10px;'></i></a>" : "") +
+        //(moreButtons ? "<a href='" + mailLink + "' title='Link zur Problemstelle mailen'><i class='fa fa-envelope' style='margin-right:10px;'></i></a>" : "") +
+        "<a href='" + openLink + "' title='Details-Link der Problemstelle'><var>" + id + "</var></a>" +
+        (showJiraButton ? "&nbsp;<a href='" + jiraLink + "' title='Klicken, um in Jira zu editieren...' target='_blank'><i class='fa fa-edit' style='margin-left:2px;'></i></a>" : "") +
+        "</div></div>" +
         "<div style='padding-left:5px;padding-top:5px;padding-right:5px; background: #ffffff'><b>" + properties.Titel + "</b></div>" +
         //"<div style='margin-bottom:5px'>" + lage + ", " + zwischen + richtung +
         (laenge.length > 0 ? "<div style='padding:5px;margin-top:5px;'>Länge: " + laenge + "</div>" : "") +
@@ -230,7 +233,95 @@ function copyToClipboard(text) {
     $temp.remove();
 }
 
+// helper functions for popup "send image"
 
+function getLatLngOfMarker(id) {
+    let foundLatLng = null;
+    psGlobal.markerLayerHighZoom.eachLayer(function (marker) {
+        console.log("Checking <" + marker.options.id + "> === <" + id + ">");
+        if (marker.options.id === id) {
+            foundLatLng = marker.getLatLng();
+        }
+    });
+    return foundLatLng;
+}
+
+var feedbackId = null;
+function getFeedbackId() {
+    return feedbackId;
+}
+
+function setFeedbackId(id) {
+    feedbackId = id;
+}
+
+function describeGFClicked() {
+    let idEnc = encodeURIComponent(getFeedbackId());
+    let newUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSdAkQ0uL7LJJKf6OZBTipWnKCapcDc28APZ6Nx1Goe9mtxShQ/viewform?usp=pp_url&entry.754031471=' + idEnc;
+    window.open(newUrl);
+}
+
+function describeFClicked() {
+    let idEnc = encodeURIComponent(getFeedbackId());
+    let newUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSe4q9WL1nxdxMU6kR3Nc3wAymXBOb9W8w3nejhoBER6bsbFUQ/viewform?usp=pp_url&entry.754031471=' + idEnc;
+    window.open(newUrl);
+}
+
+function describeMClicked() {
+    let idEnc = encodeURIComponent(getFeedbackId());
+    let zoomLink = encodeURIComponent(createPermanentLink("zoom", properties.Id));
+    window.open('mailto:linz@radlobby.at?subject=Feedback zu Problemstelle ' + idEnc+"&body="+zoomLink);
+}
+
+function feedbackHtml(id) {
+    return '<div style="margin-top: 10px;width: 300px;">\n' +
+        '<div >' +
+        '    <div style="align: center; text-align: center;"><b>Foto oder Rückmeldung senden:<br/>Per Google-Formular oder Mail</b><br/>&nbsp;</div>\n' +
+
+        '    <div class="column" style="align: center; text-align: center;">\n' +
+        '        <button id="feedbackGF" style="max-width: 150px;height: 100%" onclick="describeGFClicked();">\n' +
+        '            <div><img src="assets/list-g-f.png" height="50px"/></div>\n' +
+        '            <div style="align: center; text-align: center;"><b>Formular<br/>mit Foto</br></b></div>\n' +
+        '        </button>\n' +
+        '    </div>\n' +
+        '    <div class="column" style="align: center; text-align: center;">\n' +
+        '        <button id="feedbackF" style="max-width: 150px;height: 100%;opacity: 0.8;" onclick="describeFClicked();">\n' +
+        '            <div><img src="assets/list.png" height="50px"/></div>\n' +
+        '            <div style="align: center; text-align: center;">Formular<br/>&nbsp;</div>\n' +
+        '        </button>\n' +
+        '    </div>\n' +
+        '    <div class="column" style="align: center; text-align: center;">\n' +
+        '        <button id="feedbackM" style="max-width: 150px;height: 100%;opacity: 0.8;" onclick="describeMClicked();">\n' +
+        '            <div><img src="assets/mail.png" height="50px"/></div>\n' +
+        '            <div style="align: center; text-align: center;">Mail<br/>&nbsp;</div>\n' +
+        '        </button>\n' +
+        '    </div>\n' +
+        '<div>&nbsp;<br/>' +
+        '    <div style="font-size:smaller; text-align: center;">Haben Sie bessere Fotos dieser Problemstelle? Wir würden uns freuen, wenn Sie sie uns zur Veranschaulichung schicken würden. Sie überlassen uns damit die Nutzungsrechte an den Bildern. Danke!</div>\n' +
+        '</div>' +
+        '</div>';
+}
+
+function openSendImage(id) {
+    let latLng = getLatLngOfMarker(id);
+    if (latLng != null) {
+        //rkGlobal.leafletMap.closePopup();
+        setFeedbackId(id);
+        let popup = L.popup({
+            autoClose: true,
+            closeOnClick: true,
+            closeButton: true,
+            closeOnEscapeKey: true
+        })
+            .setLatLng(latLng)
+            .setContent(feedbackHtml(id))
+            .openOn(rkGlobal.leafletMap);
+    } else {
+        console.log("No latLng found for id " + id);
+    }
+}
+
+//754031471
 // all problemstelle image list and full screen image helper functions below...
 
 function scrollMenuScrollWheel(evt) {
