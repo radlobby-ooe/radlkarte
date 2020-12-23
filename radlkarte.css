@@ -28,8 +28,7 @@ html, body, #map {
 }
 
 .leaflet-popup-content-wrapper {
-	background-color: #ffffff;
-	opacity: 0.9;
+	background: rgba(255,255,255,0.9);
 }
 
 

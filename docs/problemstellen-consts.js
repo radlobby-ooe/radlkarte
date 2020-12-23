@@ -247,6 +247,7 @@ function getLatLngOfMarker(id) {
 }
 
 var feedbackId = null;
+
 function getFeedbackId() {
     return feedbackId;
 }
@@ -269,8 +270,8 @@ function describeFClicked() {
 
 function describeMClicked() {
     let idEnc = encodeURIComponent(getFeedbackId());
-    let zoomLink = encodeURIComponent(createPermanentLink("zoom", properties.Id));
-    window.open('mailto:linz@radlobby.at?subject=Feedback zu Problemstelle ' + idEnc+"&body="+zoomLink);
+    let zoomLink = encodeURIComponent(createPermanentLink("zoom", getFeedbackId()));
+    window.open('mailto:linz@radlobby.at?subject=Feedback zu Problemstelle ' + idEnc + "&body=" + zoomLink);
 }
 
 function feedbackHtml(id) {
@@ -297,7 +298,7 @@ function feedbackHtml(id) {
         '        </button>\n' +
         '    </div>\n' +
         '<div>&nbsp;<br/>' +
-        '    <div style="font-size:smaller; text-align: center;">Haben Sie bessere Fotos dieser Problemstelle? Wir würden uns freuen, wenn Sie sie uns zur Veranschaulichung schicken würden. Sie überlassen uns damit die Nutzungsrechte an den Bildern. Danke!</div>\n' +
+        '    <div style="font-size:smaller; text-align: center;">Haben Sie bessere Fotos dieser Problemstelle? Wir würden uns freuen, wenn Sie sie uns zur Veranschaulichung schicken würden.</div>\n' +
         '</div>' +
         '</div>';
 }
