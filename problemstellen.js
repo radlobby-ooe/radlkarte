@@ -39,13 +39,78 @@ function updatePSControl() {
     let rkChecked = rkGlobal.rkShown;
     let html = '<form><input id="rkToggleCheckbox" type="checkbox" ' + (rkChecked ? "checked" : "") + ' onClick="rkToggleCheckboxClicked()"/>Radlkarte';
     if ((psGlobal.problemStellenFile != null) && (psGlobal.problemStellenFile.length !== 0)) {
-        html += '<input id="psToggleCheckbox" type="checkbox" checked onClick="psToggleCheckboxClicked()"/>Problemstellen<form/>';
+        html += '&nbsp;<input id="psToggleCheckbox" type="checkbox" checked onClick="psToggleCheckboxClicked()"/>Problemstellen ';
     } else {
         setPSSubControlHidden(true);
     }
-    div.innerHTML = html;
+    // statistics about ratings:
+    html += '&nbsp;<input id="psDisplayRatings" type="button" value="Top 10" onClick="psTop10Clicked()"/>';
+    div.innerHTML = html + "<form/>";
 }
 
+function psTop10Clicked() {
+    // dummy data for local test:
+    // let json = JSON.parse('{"status":"success","results":[{"item":"LUECKE-99","average":"5","ratings":"1","lastupdate":"2021-03-27 20:38:10"},{"item":"LUECKE-15","average":"5","ratings":"1","lastupdate":"2021-03-27 20:50:22"},{"item":"LUECKE-46","average":"4","ratings":"1","lastupdate":"2021-03-27 20:12:40"},{"item":"LUECKE-41","average":"4","ratings":"1","lastupdate":"2021-03-27 20:38:06"},{"item":"LUECKE-24","average":"2","ratings":"1","lastupdate":"2021-03-27 20:12:42"},{"item":"LUECKE-72","average":"2","ratings":"1","lastupdate":"2021-03-27 20:38:09"}]}');
+    // showTop10(json);
+
+    $.getJSON( "ratekit/api/statistics.php?max=500" )
+        .done(function( json ) {
+            showTop10(json);
+        })
+        .fail(function( jqxhr, textStatus, error ) {
+            var err = textStatus + ", " + error;
+            console.log( "Request Failed: " + err );
+        });
+
+}
+
+function showTop10(json) {
+    console.log("Opening Top 10 "+JSON.stringify(json));
+    if (json.status==="success") {
+        for (let i=0; i<10; i++) {
+            let probIdText;
+            let probTypText;
+            let probTitleText;
+            let probRatingText;
+            if (Array.isArray(json.results) && (i<json.results.length)) {
+                let probId = json.results[i].item;
+                let openLink = createPermanentLink("open", probId);
+                probIdText = "<a href='" + openLink + "'>" + probId + "</a>";
+                //psGlobal.psGeoJsons[i].properties
+                let globalPropsRun = 0;
+                while ((globalPropsRun < psGlobal.psGeoJsons.length) && (psGlobal.psGeoJsons[globalPropsRun].properties.Id !== probId)) {
+                    globalPropsRun++;
+                }
+                if ((globalPropsRun < psGlobal.psGeoJsons.length) && (psGlobal.psGeoJsons[globalPropsRun].properties.Id===probId)) {
+                    probTypText = psGlobal.psGeoJsons[globalPropsRun].properties.Typ;
+                    probTitleText = psGlobal.psGeoJsons[globalPropsRun].properties.Titel;
+                } else {
+                    probTypText = "Nicht geladen";
+                    probTitleText = "Nicht geladen";
+                }
+                probRatingText = json.results[i].average;
+            } else {
+                probIdText = "&nbsp;";
+                probTypText= "&nbsp;";
+                probTitleText= "&nbsp;";
+                probRatingText = "&nbsp;";
+            }
+            var t1 = document.getElementById("table-top-" + (i+1) + "-1");
+            var t2 = document.getElementById("table-top-" + (i+1) + "-2");
+            var t3 = document.getElementById("table-top-" + (i+1) + "-3");
+            var t4 = document.getElementById("table-top-" + (i+1) + "-4");
+            t1.innerHTML = probIdText;
+            t2.innerHTML = probTypText;
+            t3.innerHTML = probTitleText;
+            t4.innerHTML = probRatingText;
+
+        }
+    }
+    var modal = document.getElementById("myModalTableDiv");
+    var captionText = document.getElementById("myModalTableCaption");
+    modal.style.display = "block";
+    captionText.innerHTML = "BenutzerInnen-Bewertung: Top-10";
+}
 
 function setPSSubControlHidden(hidden) {
     var div = document.getElementById("psCommandSubDiv");
@@ -65,7 +130,14 @@ function updatePSSubControl() {
         for (let i = 0; i < types.length; i++) {
             let typ = types[i];
             console.log("Rendering " + typ);
-            cbs = cbs + '<input id="psToggleCheckbox' + typ + '" type="checkbox" checked onClick="psSubToggleCheckboxClicked()"/>' + typ;
+            let sum = 0;
+            for (let i=0; i<psGlobal.psGeoJsons.length; i++) {
+                if (psGlobal.psGeoJsons[i].properties.Typ === typ) {
+                    sum++;
+                }
+            }
+
+            cbs = cbs + '<input id="psToggleCheckbox' + typ + '" type="checkbox" checked onClick="psSubToggleCheckboxClicked()"/> ' + typ + ' (' + sum + ')&nbsp;';
         }
         div.innerHTML =
             '<div style="margin-left: 20px;"><form>' + cbs + '<form/></div>';
@@ -114,6 +186,12 @@ function initializePSIcons() {
     psGlobal.icons = {};
     psGlobal.icons.redDot = L.icon({
         iconUrl: 'css/reddot.svg',
+        iconSize: [10, 10],
+        iconAnchor: [5, 5],
+        popupAnchor: [0, -5]
+    });
+    psGlobal.icons.nophoto = L.icon({
+        iconUrl: 'css/keinfoto.svg',
         iconSize: [10, 10],
         iconAnchor: [5, 5],
         popupAnchor: [0, -5]
@@ -325,6 +403,7 @@ function updateLineStyles() {
                 console.log("myScrollMenu not found in popup");
 
             }
+            $(rateKitFunc());
         }).bindTooltip(texts.tooltip)
             .on('popupclose', function (popup) {
                 suppressMouseOverHighlight = false;

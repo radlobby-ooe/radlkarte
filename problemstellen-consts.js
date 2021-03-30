@@ -12,6 +12,12 @@ const lueckeLineStyleHighlight = {
     opacity: '0.8'
 };
 
+function isMobile() {
+    // credit to Timothy Huang for this regex test:
+    // https://dev.to/timhuang/a-simple-way-to-detect-if-browser-is-on-a-mobile-device-with-javascript-44j3
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 function createPermanentLink(queryKey, id) {
     let baseURL = window.location.protocol + window.location.hostname + ":" + window.location.port + window.location.pathname;
     return new URL("?" + queryKey + "=" + encodeURIComponent(id), baseURL);
@@ -118,15 +124,18 @@ function getLueckeTexts(geometry, properties) {
     }
 
     let imageList = "";
+    let imagesOpenLinkOnly = "";
     if ((properties.Fotos != null) && (properties.Fotos.length > 0)) {
         for (let i = 0; i < properties.Fotos.length; i++) {
             let photoUrl = ImagePrefix + "thumb-" + properties.Fotos[i];
             let stringFotos = JSON.stringify(properties.Fotos);
             imageList += "<img id='myId123' src='" + photoUrl + "' style='margin:10px;' class='thumbImage' onclick='enlargeImg(this," + stringFotos + ", " + i + ");'/>";
+            imagesOpenLinkOnly = "<div style='margin-top:5px;padding-left:5px;'><a onclick='enlargeImg(document.getElementById(\"myId123\")," + stringFotos + ", " + 0 + ");'>Bilder anzeigen</a></div>";
         }
     } else {
-        let photoUrl = psGlobal.icons[properties.Typ].options.iconUrl;
-        imageList = "<img id='myId123' src='" + photoUrl + "' style='margin:20px;' class='thumbImage' onclick='enlargeImg(this, [], 0);'/>";
+        //let photoUrl = psGlobal.icons[properties.Typ].options.iconUrl;
+        let photoUrl = psGlobal.icons.nophoto.options.iconUrl;
+        imageList = "<img id='myId123' src='" + photoUrl + "' style='margin:20px;' class='thumbImage' onclick='openSendImage(\"" + properties.Id + "\")' title='Leider noch kein Foto verfügbar. Haben Sie Fotos zur Veranschaulichung, die wir verwenden dürfen?'/>";
     }
 
     let streetViewString = "";
@@ -192,17 +201,32 @@ function getLueckeTexts(geometry, properties) {
     let zoomLink = createPermanentLink("zoom", properties.Id);
     let openLink = createPermanentLink("open", properties.Id);
     let mailLink = "mailTo:linz@radlobby.at?subject=" + encodeURIComponent("Problemstelle " + properties.Id) + "&body=" + encodeURIComponent(openLink);
+
+    let scrollMenuText;
+    if (isMobile()) {
+        scrollMenuText = imagesOpenLinkOnly +
+        "<div id='myScrollMenu' class='scrollmenu' hidden>" +
+            imageList +
+            "</div>";
+    } else {
+        scrollMenuText = "<div id='myScrollMenu' class='scrollmenu'>" +
+        imageList +
+        "</div>";
+    }
+
+
     let popup = "<div style='margin-top:25px;'>" +
-        "<div style='background: #dddddd;padding: 5px;'><div style='float:left; width:20%;'>" +
-        "<var><b>" + typeText + "</b></var>" +
+        "<div style='background: #dddddd;padding: 5px;'><div style='float:left; width:50%;'>" +
+        "<var><b>" + typeText + "</b></var><br/>" +
+        "<a href='" + openLink + "' title='Details-Link der Problemstelle'><var>" + id + "</var></a>" +
         "</div>" +
         "<div style='margin-left:20%; text-align: right;'>" +
-        "<a onclick='openSendImage(\"" + properties.Id + "\")' title='Foto oder Feedback senden'><i class='fa fa-commenting' style='margin-right:10px;'></i></a>" +
+        "<button style='color:#3399ff' type='button' onclick='openSendImage(\"" + properties.Id + "\")' title='Foto oder Feedback senden'><i class='fa fa-commenting fa-2x'></i></button>" +
+        //"<a onclick='openSendImage(\"" + properties.Id + "\")' title='Foto oder Feedback senden'><i class='fa fa-commenting' style='margin-right:10px;'></i></a>" +
         //(moreButtons ? "<a onclick='copyToClipboard(\"" + zoomLink + "\")' title='Positions-Link der Problemstelle \nKlicken, um zu kopieren...'><i class='fa fa-search-plus' style='margin-right:10px;'></i></a>" : "") +
         //(moreButtons ? "<a onclick='copyToClipboard(\"" + openLink + "\")' title='Details-Link der Problemstelle \nKlicken, um zu kopieren...'><i class='fa fa-link' style='margin-right:10px;'></i></a>" : "") +
         //(moreButtons ? "<a href='" + mailLink + "' title='Link zur Problemstelle mailen'><i class='fa fa-envelope' style='margin-right:10px;'></i></a>" : "") +
-        "<a href='" + openLink + "' title='Details-Link der Problemstelle'><var>" + id + "</var></a>" +
-        (showJiraButton ? "&nbsp;<a href='" + jiraLink + "' title='Klicken, um in Jira zu editieren...' target='_blank'><i class='fa fa-edit' style='margin-left:2px;'></i></a>" : "") +
+        (showJiraButton ? "&nbsp;<a href='" + jiraLink + "' title='Klicken, um in Jira zu editieren...' target='_blank'><i class='fa fa-edit fa-2x' style='margin-left:2px;'></i></a>" : "") +
         "</div></div>" +
         "<div style='padding-left:5px;padding-top:5px;padding-right:5px; background: #ffffff'><b>" + properties.Titel + "</b></div>" +
         //"<div style='margin-bottom:5px'>" + lage + ", " + zwischen + richtung +
@@ -210,18 +234,34 @@ function getLueckeTexts(geometry, properties) {
         (problem.length > 0 ? "<div style='padding:5px; max-height:75px;overflow-y:auto'>" + problem + "</div>" : "") +
         (vorschlag.length > 0 ? "<div style='padding:5px;margin-top:5px;max-height:75px;overflow-y:auto'>Vorschlag: " + vorschlag + "</div>" : "") +
         relatedArticles +
-        "<div id='myScrollMenu' class='scrollmenu'>" +
-        imageList +
-        "</div>" +
-        streetViewString;
+        scrollMenuText +
+        streetViewString+
+        '<div class="rating-gui" style="background: #dddddd;padding-top:5px;min-height: 50px;min-width: 300px" title="Wie wichtig ist Ihnen die Behebung dieser Problemstelle?">\n' +
+        '    <div class="column" style="align: center; text-align: center;vertical-align: center">\n' +
+        '        <button type="button" class="rating-button" data-rating-value="1" data-rating-id="'+ id + '">Eher<br/>egal</button>' +
+        '    </div>\n' +
+        '    <div class="column red" style="align: center; text-align: center;display: flex;justify-content: center;">\n' +
+        '        <input id='+ id + ' class="rating" data-size="xs" data-show-label="true" type="text" />'+
+        '    </div>\n' +
+        '    <div class="column" style="align: center; text-align: center;">\n' +
+        '        <button type="button" class="rating-button" data-rating-value="5" data-rating-id="'+ id + '"/>Dringend<br/>beheben!</button>' +
+        '    </div>\n' +
+        '<div style="text-align: center; font-size: smaller;">   Bewertungen: <span class="rating-count">?</span></div>'+
+        '</div>'+
+        //"<div style='background: #dddddd;;margin-top:5px; text-align:center'>Eher egal &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nervt mich!</div>"+
+        //"<div class='red' style='background: #dddddd; text-align:center;display: flex;justify-content: center;' title='Wie wichtig ist Ihnen die Behebung dieser Problemstelle?'><input id='" + id + "' class='rating' data-size='xs'></div>"+
+        "";
+
+
+
 
     let tooltip =
         "<div style='float:left; width:50%;'><b>" + typeText + "</b></div>" +
         "<div style='margin-left:50%; text-align: right;margin-bottom:5px;'><var>" + id + "</var></div>" +
         "<div>" + properties.Titel + "</div>";
-    return {
-        "popup": popup,
-        "tooltip": tooltip
+     return {
+         "popup": popup,
+         "tooltip": tooltip
     }
 }
 
@@ -238,7 +278,7 @@ function copyToClipboard(text) {
 function getLatLngOfMarker(id) {
     let foundLatLng = null;
     psGlobal.markerLayerHighZoom.eachLayer(function (marker) {
-        console.log("Checking <" + marker.options.id + "> === <" + id + ">");
+        //console.log("Checking <" + marker.options.id + "> === <" + id + ">");
         if (marker.options.id === id) {
             foundLatLng = marker.getLatLng();
         }
