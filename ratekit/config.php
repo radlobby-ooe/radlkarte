@@ -24,4 +24,4 @@ define( 'ALLOW_HALVES', false );
 define( 'RATING_QUERY_LIMIT', 50000 );
 
 // Period we don't allow users to rate again in, in minutes - can be 0 - or 2625840 for 5 years - we round to whole minutes
-define( 'THROTTLE_TIME', 60 * 24 * 7 );
+define( 'THROTTLE_TIME', 1 );

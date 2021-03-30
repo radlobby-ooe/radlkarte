@@ -241,7 +241,7 @@ function getLueckeTexts(geometry, properties) {
         '        <button type="button" class="rating-button" data-rating-value="1" data-rating-id="'+ id + '">Eher<br/>egal</button>' +
         '    </div>\n' +
         '    <div class="column red" style="align: center; text-align: center;display: flex;justify-content: center;">\n' +
-        '        <input id='+ id + ' class="rating" data-size="xs" data-show-label="true" type="text" />'+
+        '        <input id='+ id + ' class="rating" data-size="xs" data-show-label="true" data-step="1" type="text" />'+
         '    </div>\n' +
         '    <div class="column" style="align: center; text-align: center;">\n' +
         '        <button type="button" class="rating-button" data-rating-value="5" data-rating-id="'+ id + '"/>Dringend<br/>beheben!</button>' +
