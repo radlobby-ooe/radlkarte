@@ -1,5 +1,342 @@
+<!DOCTYPE html>
 <html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta property="og:title" content="Problemstellen der Linzer Radinfrastruktur" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://radlobby-ooe.github.io/radlkarte-mit-problemstellen/" /> <!-- todo other url -->
+	<meta property="og:image" content="https://radlobby-ooe.github.io/radlkarte-mit-problemstellen/css/problemstellenkarte-banner.jpg" />  <!-- todo other url -->
+	<meta property="og:description" content="Radfahren macht froh. Radfahren in Linz macht oft wütend. Denn immer wieder gibt es ungelöste Problemstellen, die das Radfahren schwer machen. Die Radlobby vergisst nicht und rüttelt die Verkehrsplanung immer wieder wach. " />
+
+	<title>Problemstellen Linz</title>
+
+	<script>
+		// initialize google analytics (page views are accounted for in updateRadlkarteRegion)
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+		ga('create', 'UA-25564832-1', 'auto');
+		// hotjar
+		/*
+		(function(h,o,t,j,a,r){
+			h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+			h._hjSettings={hjid:427648,hjsv:5};
+			a=o.getElementsByTagName('head')[0];
+			r=o.createElement('script');r.async=1;
+			r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+			a.appendChild(r);
+		})(window,document,'//static.hotjar.com/c/hotjar-','.js?sv='); */
+	</script>
+
+	<link href="ratekit/css/ratekit.min.css" type="text/css" rel="stylesheet">
+
+	<script src="js/leaflet-1.6.0/leaflet.js"></script>
+	<link rel="stylesheet" href="js/leaflet-1.6.0/leaflet.css" />
+
+	<script src="js/leaflet-sidebar-v2-3.0.6/leaflet-sidebar.min.js"></script>
+	<link rel="stylesheet" href="js/leaflet-sidebar-v2-3.0.6/leaflet-sidebar.css"/>
+	<!-- font awesome is required by sidebar & leaflet-locatecontrol-->
+	<link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.min.css"/>
+
+	<script src="js/leaflet-polylineDecorator-1.6.0/leaflet.polylineDecorator.js"></script>
+
+	<script src="js/leaflet-hash-1.0.1-customized/leaflet-hash.js"></script>
+
+	<script src="js/leaflet-locatecontrol-0.66.1/L.Control.Locate.min.js"></script>
+	<link rel="stylesheet" href="js/leaflet-locatecontrol-0.66.1/L.Control.Locate.css"/>
+
+	<script src="js/leaflet-control-geocoder-1.13.0/Control.Geocoder.js"></script>
+	<link rel="stylesheet" href="js/leaflet-control-geocoder-1.13.0/Control.Geocoder.css"/>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+
+	<script src="js/turf-5.1.6/turf.min.js"></script>
+
+	<script src="js/jquery-3.3.1.min.js"></script>
+
+	<link href="css/museo-500/style.css" rel="stylesheet" type="text/css"/>
+	<link href='https://fonts.googleapis.com/css?family=Roboto:400,400italic,700' rel='stylesheet' type='text/css'/>
+
+	<script src="./problemstellen-consts.js"></script>
+	<script src="./problemstellen.js"></script>
+	<script src="./melden.js"></script>
+	<script src="./radlkarte.js"></script>
+	<link rel="stylesheet" href="./radlkarte.css" />
+	<link rel="icon" type="image/x-icon" href="css/favicon.ico" />
+</head>
+
 <body>
-Verschoben: <a href="https://linz.radlobby.at/problemstellen">https://linz.radlobby.at/problemstellen</a>
+
+<!-- modal image for  full screen problemstelle image zoom... -->
+<div id="myModal" class="modal">
+	<span class="close" id="myModalClose">&times;</span>
+	<div>
+		<img class="modal-content" id="img01">
+		<div id="modalLeftArrow" class="middle-left" onclick="modalImageLeftClick()"><i class="arrow left"></i></div>
+	    <div id="modalRightArrow" class="middle-right" onclick="modalImageRightClick()"><i class="arrow right"></i></div>
+	</div>
+	<div class="modal-caption" id="caption"></div>
+</div>
+
+<script>
+	// close handlers for modal
+	document.getElementById("img01").onclick = function() {
+		document.getElementById("myModal").style.display = "none";
+	};
+
+	document.getElementById("myModalClose").onclick = function() {
+		document.getElementById("myModal").style.display = "none";
+	}
+</script>
+
+<!-- modal table for top 10 -->
+<div id="myModalTableDiv" class="modal">
+	<span class="close" id="myModalTableClose">&times;</span>
+	<div style="width: 80%; margin: 0 auto;">
+		<table id="myModalTable" style="margin: 0 auto;">
+			<tr>
+				<th id="table-top-h-1">Problemstelle</th>
+				<th id="table-top-h-2">Typ</th>
+				<th id="table-top-h-3">Beschreibung</th>
+				<th id="table-top-h-4">Dringlichkeit (1 - 5)</th>
+			</tr>
+			<tr>
+				<td id="table-top-1-1">.</td>
+				<td id="table-top-1-2">.</td>
+				<td id="table-top-1-3">.</td>
+				<td id="table-top-1-4">.</td>
+			</tr>
+			<tr>
+				<td id="table-top-2-1">.</td>
+				<td id="table-top-2-2">.</td>
+				<td id="table-top-2-3">.</td>
+				<td id="table-top-2-4">.</td>
+			</tr>
+			<tr>
+				<td id="table-top-3-1">.</td>
+				<td id="table-top-3-2">.</td>
+				<td id="table-top-3-3">.</td>
+				<td id="table-top-3-4">.</td>
+			</tr>
+			<tr>
+				<td id="table-top-4-1">.</td>
+				<td id="table-top-4-2">.</td>
+				<td id="table-top-4-3">.</td>
+				<td id="table-top-4-4">.</td>
+			</tr>
+			<tr>
+				<td id="table-top-5-1">.</td>
+				<td id="table-top-5-2">.</td>
+				<td id="table-top-5-3">.</td>
+				<td id="table-top-5-4">.</td>
+			</tr>
+			<tr>
+				<td id="table-top-6-1">.</td>
+				<td id="table-top-6-2">.</td>
+				<td id="table-top-6-3">.</td>
+				<td id="table-top-6-4">.</td>
+			</tr>
+			<tr>
+				<td id="table-top-7-1">.</td>
+				<td id="table-top-7-2">.</td>
+				<td id="table-top-7-3">.</td>
+				<td id="table-top-7-4">.</td>
+			</tr>
+			<tr>
+				<td id="table-top-8-1">.</td>
+				<td id="table-top-8-2">.</td>
+				<td id="table-top-8-3">.</td>
+				<td id="table-top-8-4">.</td>
+			</tr>
+			<tr>
+				<td id="table-top-9-1">.</td>
+				<td id="table-top-9-2">.</td>
+				<td id="table-top-9-3">.</td>
+				<td id="table-top-9-4">.</td>
+			</tr>
+			<tr>
+				<td id="table-top-10-1">.</td>
+				<td id="table-top-10-2">.</td>
+				<td id="table-top-10-3">.</td>
+				<td id="table-top-10-4">.</td>
+			</tr>
+		</table>
+	</div>
+	<div class="modal-caption" id="myModalTableCaption"></div>
+</div>
+
+<script>
+	// close handlers for modal table
+	$( "#myModalTableDiv" ).click(function(e) {
+		if (e.target.id == "myModalTable" || $(e.target).parents("#myModalTable").length) {
+		} else {
+			document.getElementById("myModalTableDiv").style.display = "none";
+		}
+	});
+	$( "#myModalTableClose" ).click(function() {
+		document.getElementById("myModalTableDiv").style.display = "none";
+	});
+
+</script>
+
+	<div id="map"></div>
+	<div id="radlobby-logo">
+		<a href="http://www.radlobby.at/linz" target="_blank"><img src="css/radlobby-linz.png" alt="Radlobby Linz" /></a>
+	</div>
+
+	<div id="sidebar" class="leaflet-sidebar collapsed">
+
+		<div class="leaflet-sidebar-tabs">
+			<ul role="tablist">
+				<li class="active"><a href="#psmain" role="tab"><i class="fa fa-align-justify"></i></a></li>
+				<li><a href="#pshilfe" role="tab"><i class="fa fa-info-circle"></i></a></li>
+				<li><a href="#pscopyright" role="tab"><i class="fa fa-copyright"></i></a></li>
+				<li><a href="#pskontakt" role="tab"><i class="fa fa-envelope"></i></a></li>
+			</ul>
+		</div>
+
+		<div class="leaflet-sidebar-content">
+			<div class="leaflet-sidebar-pane active" id="psmain">
+				<h1 class="leaflet-sidebar-header">
+					<span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span> Problemstellen Linz
+				</h1>
+				<h2>Radfahren macht froh. Radfahren in Linz macht oft wütend.</h2>
+				<p>
+					Denn immer wieder gibt es Problemstellen, die das Radfahren schwer machen. Es ist äußerst frustrierend für Linzerinnen und Linzer, oft jahrelang an denselben gefährlichen Stellen vorbeizuradeln.
+				</p>
+				<h2>Probleme der Stadt Linz melden!</h2>
+
+				<p>
+					Probleme in der Radinfrastruktur sollten auf jeden Fall der Stadt Linz gemeldet werden, etwa über die städtische Plattform <a href="https://schauauf.linz.at/" target="_blank">Schau Auf Linz</a> oder per <a href="mailto:info@mag.linz.at">Mail an info@mag.linz.at</a>.  Auch der zuständige <a href="mailto:markus.hein@mag.linz.at">Vizebürgermeister</a> darf kontaktiert werden.
+				</p>
+
+				<h2>Worum geht es hier?</h2>
+
+				<p>
+					Manche Problemstellen werden von der Stadt Linz einfach nicht behoben. Die Linzer Verkehrsplanung ist für den Radverkehr personell unterbesetzt und denkt meist auch zu auto-zentriert.
+				</p>
+
+				<p>
+					Wir listen hier Problemstellen ausgewählter Kategorien auf, die wohl aus diesen Gründen seit längerem ungelöst sind: <a style="cursor: pointer;" onclick="rkGlobal.sidebar.open('pshilfe')">Für mehr Informationen hier klicken.</a>
+				</p>
+
+				<p>
+					Wir rütteln die Verkehrsplanung immer wieder wach. Und wir weisen über die Amtsperioden hinweg auch immer wieder jede neue Verkehrsstadträtin bzw. jeden neuen Verkehrsstadtrat auf notwendige Verbesserungen in der Radinfrastruktur hin!
+				</p>
+			</div>
+
+
+
+			<div class="leaflet-sidebar-pane" id="pshilfe">
+				<h1 class="leaflet-sidebar-header">
+					<span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>Hilfe
+				</h1>
+				<p>
+					Die Problemstellen-Karte der <a href="https://www.radlobby.at/linz" target="_blank">Radlobby Linz</a> listet ungelöste Problem in der Linzer Radinfrastruktur auf. Auch Vorschläge zum Ausbau, etwa fehlende Radrouten sind enthalten.
+				</p>
+				<p>
+					Wir bitten Sie zu berücksichtigen, dass die Daten eine Auswahl an Problemstellen zu einem bestimmten Zeitpunkt darstellen. Die Problemstellen werden nach bestem Wissen beschrieben, sie müssen jedoch weder vollständig noch aktuell oder korrekt sein..
+				</p>
+				<p>
+					Es existieren derzeit folgende Kategorien:
+				</p>
+				<ul class="legend">
+					<li>
+						<img src="css/luecke.svg" width="60" alt="Symbol: Lücke"><strong>Lücke</strong><br>
+						Hier besteht eine Lücke im Radrouten-Netz oder die bestehende Ausführung muss geändert werden, etwa weil derzeit zu gefährlich.
+					</li>
+					<li>
+						<img src="css/dooring.svg" width="60" alt="Symbol: Gefahr durch Autotüren"><strong>Dooring</strong><br>
+						Hier werden Radfahrende durch das Öffnen von Autotüren gefährdet (Dooring), z.B. wenn ein Radweg zu eng neben einer Parkspur geführt wird.
+					</li>
+					<li>
+						<img src="css/warning.svg" width="60" alt="Symbol: Allgemeine Problemstelle"><strong>Allgemeine Problemstelle</strong><br>
+						Siehe textuelle Beschreibung oder Fotos.
+					</li>
+				</ul>
+				<p>
+					Weitere Kategorien werden folgen.
+				</p>
+				<p>
+					Eine Beschreibung der jeweiligen Problemstellen, mit Details und evt. Fotos, wird angezeigt, wenn man sie antippt bzw. anklickt.
+				</p>
+				<p>Die Darstellung einzelner Kategorien kann ein- und ausgeschaltet werden. Die <a href="https://www.radlkarte.at/#linz" target="_blank">Linzer Radlkarte</a> kann über die Problemstellen gelegt werden.</p>
+
+			</div>
+
+			<div class="leaflet-sidebar-pane" id="pscopyright">
+				<h1 class="leaflet-sidebar-header">
+					<span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>Nutzungsrechte
+				</h1>
+				<p>
+					Diese Karte basiert auf der <a href="https://www.radlkarte.at" target="_blank">Radlobby Radlkarte</a>, die open source und damit frei verfügbar auf <a href="https://github.com/markusstraub/radlkarte" target="_blank">Github</a> (Apache Lizenz 2.0) ist. Die Bewertungsfunktion basiert auf <a href="https://ratekit.com/" target="_blank">RateKit</a>, das unter GPL steht.
+				</p>
+				<h2>Daten</h2>
+				<p>
+					Alle Daten und Fotos hier dienen der öffentlichen Information, mit dem Ziel Verbesserung für den Radverkehr in Linz zu erreichen. Weiterverwendung der Daten und Fotos durch Dritte für andere Zwecke als diesen ist nicht erlaubt.
+				</p>
+				<h2>Fotos</h2>
+				<p>
+					Die Fotos dienen der Veranschaulichung der Problemstellen. Viele der Fotos der Problemstellen wurden von der Radlobby Linz selbst angefertigt. Für manche wurden der Radlobby Linz von Dritten etwa mit der Meldung einer Problemstelle die Nutzungsrechte überlassen und bestätigt, dass dadurch keine Persönlichkeitrechte verletzt werden.
+				</p>
+				<p>
+					Wenn Sie glauben, dass durch eines der Fotos gegen Rechte verstoßen wird, nehmen Sie bitte mit uns Kontakt auf: <a href="https://www.radlobby.at/linz/kontakt" target="_blank">Radlobby Linz</a> bzw. <a href="https://www.radlobby.at/oberoesterreich/kontakt-ooe" target="_blank">Verein Radlobby OÖ.</a> Vielen Dank.
+				</p>
+			</div>
+
+			<div class="leaflet-sidebar-pane" id="pskontakt">
+				<h1 class="leaflet-sidebar-header">
+					<span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>Kontakt
+				</h1>
+				<h2>Impressum</h2>
+				<p>
+					<img src="css/radlobby-linz.png" width="150" alt="Radlobby Linz" id="radlobby-linz-logo-clicker"/>
+				</p>
+				<p>
+					<a href="https://www.radlobby.at/linz" target="_blank">Homepage</a> | <a href="mailto:linz@radlobby.at?subject=Kommentar%20zur%20Problemstellen-Karte%20Linz">Mail</a><br/>
+					<a href="https://www.radlobby.at/linz/kontakt" target="_blank">Kontakt Radlobby Linz</a> | <a href="https://www.radlobby.at/oberoesterreich/kontakt-ooe" target="_blank">Kontakt Verein Radlobby OÖ.</a>
+				</p>
+				<h2>Problemstelle melden</h2>
+				<p>
+					Verärgert über Problemstellen auf Linzer Radwegen, die von der Stadt Linz einfach nicht behoben werden? Obwohl Sie die Stadt Linz schon auf der offiziellen Plattform <a href="https://schauauf.linz.at/" target="_blank">Schau Auf Linz</a> oder per <a href="mailto:info@mag.linz.at">Mail an info@mag.linz.at</a>
+					kontaktiert haben, passiert nichts?
+				</p>
+				<p>
+					Melden Sie solche Problemstellen bitte auch der Radlobby Linz!
+					<ul>
+					<li><a href="https://www.radlobby.at/linz/problemstelle-melden" target="_blank">Mit einem einfachen Formular dort.</a></li>
+					<li>Oder gleich in dieser Karte, indem Sie Strecken selbst zeichnen. Benutzen Sie die folgenden Buttons in der Karte: <img src="assets/draw.png"/> Folgen Sie bitte den eingeblendeten Hilfetexten. Anschließend klicken Sie auf Ihre selbstgezeichnete Strecke und öffnen Sie das Melde-Formular.<br/>Bitte beachten Sie: Die Karte dient lediglich der Übermittlung an uns. Ihre gezeichneten Strecken bleiben <b>nicht</b> in der Karte gespeichert und werden nicht automatisch in die Sammlung übernommen.</li>
+					</ul>
+
+				</p>
+			</div>
+
+		</div>
+	</div>
+
+	<script>
+		loadLeaflet();
+	</script>
+
+
+<script>
+	let imgRLogo = document.getElementById("radlobby-linz-logo-clicker");
+	if (imgRLogo!=null) {
+		imgRLogo.addEventListener('click', function (evt) {
+			if (evt.detail === 3) {
+				document.cookie = "jirabutton=true; path=./";
+				location.reload();
+			}
+		});
+		imgRLogo.addEventListener('wheel', function (evt) {
+			document.cookie = "jirabutton=; path=./";
+			location.reload();
+		});
+	}
+</script>
+<script src="ratekit/js/ratekit.min.js"></script>
 </body>
 </html>

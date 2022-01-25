@@ -1,0 +1,378 @@
+body {
+	padding: 0;
+	margin: 0;
+}
+html, body, #map {
+	height: 100%;
+	width: 100%;
+}
+#radlobby-logo {
+	position: fixed;
+	right: 0px;
+	bottom: 10px;
+	z-index: 900;
+}
+#radlobby-logo img {
+	padding: 5px;
+	width: 150px;
+}
+@media (max-width: 600px) {
+	#radlobby-logo img {
+		width: 75px;
+	}
+}
+
+
+.leaflet-container {
+	background-color: #fff;
+}
+
+.leaflet-popup-content-wrapper {
+	background: rgba(255,255,255,0.9);
+}
+
+
+p, h4, li {
+	font-family: Roboto, arial, sans-serif;
+	color: #004B67;
+}
+h1, h2, h3 {
+	font-family: 'Museo 500 Regular', sans-serif;
+	color: #004B67;
+}
+h2 {
+	font-size: 115%;
+}
+h3 {
+	font-size: 110%;
+}
+strong {
+	font-weight: bold;
+}
+
+.leaflet-sidebar {
+	font-size: medium;
+}
+.leaflet-sidebar-header, .leaflet-sidebar-tabs > ul > li.active {
+	background-color: #B8CC24;
+	color: #fff
+}
+.leaflet-sidebar-tabs > ul > li.active > a > i {
+	color: #fff;
+}
+.leaflet-sidebar-pane a, .leaflet-sidebar-pane a:visited, .leaflet-sidebar-pane a:active, .leaflet-control-attribution a {
+	color: #AAB622;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+ul.legend-leftified {
+	padding-left: 0;
+}
+ul.legend li {
+	list-style-type: none;
+	margin-bottom: 0.5em;
+}
+
+div.legend {
+	width: 230px;
+	height: 10px;
+	border-radius: 5px;
+}
+div.legend-main {
+	vertical-align: middle;
+	background-color: #999;
+}
+div.legend-regional {
+	background-color: #999;
+	height: 4px;
+}
+div.legend-calm {
+	background-color: #004B67;
+}
+div.legend-medium {
+	background-color: #51A4B6;
+}
+div.legend-stressful {
+	background-color: #FF6600;
+}
+div.legend-oneway {
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 15px 0 15px 15px;
+	border-color: transparent transparent transparent #999;
+	margin-left: 10px;
+	margin-right: 35px;
+	border-radius: 0;
+}
+div.legend-unpaved {
+	background: repeating-linear-gradient(
+		90deg,
+		#999 0,
+		#999 20px,
+		#fff 20px,
+		#fff 30px
+	);
+}
+div.legend-steep {
+	height: 25px;
+	background: repeating-linear-gradient(
+		90deg,
+		transparent 0,
+		transparent 9px,
+		#999 9px,
+		#999 11px,
+		transparent 11px,
+		transparent 30px
+	);
+}
+div.legend-container {
+    display: grid;
+    align-items: center;
+}
+div.legend-container div {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+}
+
+ul.legend li img {
+	float: right;
+	margin-left: 1em;
+	margin-right: 1em;
+	margin-bottom: 1em;
+}
+
+/* all problemstelle image list and full screen image helper classes below... - todo: clean up! */
+
+.thumbImage {
+	max-height: 150px;
+	max-width: 200px;
+}
+
+
+#myImg {
+	border-radius: 5px;
+	cursor: pointer;
+	transition: 0.3s;
+}
+
+#myImg:hover {opacity: 0.7;}
+
+/* The Modal (background) */
+.modal {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 1000000; /* Sit on top */
+	padding-top: 100px; /* Location of the box */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgb(0,0,0); /* Fallback color */
+	background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+}
+
+/* Modal Content (image) */
+.modal-content {
+	margin: auto;
+	display: block;
+	max-width: 80%;
+	max-height: 80%;
+}
+
+/* Caption of Modal Image */
+.modal-caption {
+	margin: auto;
+	display: block;
+	width: 80%;
+	max-width: 700px;
+	text-align: center;
+	color: #ccc;
+	padding: 10px 0;
+	height: 150px;
+}
+
+/* Add Animation */
+.modal-content, .modal-caption {
+	-webkit-animation-name: zoom;
+	-webkit-animation-duration: 0.1s;
+	animation-name: zoom;
+	animation-duration: 0.1s;
+}
+
+@-webkit-keyframes zoom {
+	from {-webkit-transform:scale(0)}
+	to {-webkit-transform:scale(1)}
+}
+
+@keyframes zoom {
+	from {transform:scale(0)}
+	to {transform:scale(1)}
+}
+
+/* The Close Button */
+.close {
+	position: absolute;
+	top: 15px;
+	right: 35px;
+	color: #f1f1f1;
+	font-size: 40px;
+	font-weight: bold;
+	transition: 0.2s;
+}
+
+.close:hover,
+.close:focus {
+	color: #bbb;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+	.modal-content {
+		width: 100%;
+	}
+}
+
+
+div.scrollmenu {
+
+	overflow-x: auto;
+	overflow-y: hidden;
+	white-space: nowrap;
+	width: 280px;
+	height: 220px;
+}
+
+div.scrollmenu img {
+	display: inline-block;
+	color: white;
+	text-align: center;
+	padding: 14px;
+	text-decoration: none;
+}
+
+div.scrollmenu img:hover {
+	background-color: #eeeeee;
+}
+
+/* Container holding the image and the text */
+.container {
+	position: relative;
+	text-align: center;
+	color: white;
+}
+
+
+/* Top left text */
+.middle-left {
+	position: absolute;
+	top: 50%;
+	left: 16px;
+}
+
+/* Top right text */
+.middle-right {
+	position: absolute;
+	top: 50%;
+	right: 16px;
+}
+
+.arrow.right:hover {
+	border-width: 0 15px 15px 0;
+}
+
+.arrow.left:hover {
+	border-width: 0 15px 15px 0;
+}
+
+
+.arrow {
+	border: solid white;
+	border-width: 0 5px 5px 0;
+	display: inline-block;
+	padding: 30px;
+}
+
+.right {
+	transform: rotate(-45deg);
+	-webkit-transform: rotate(-45deg);
+}
+
+.left {
+	transform: rotate(135deg);
+	-webkit-transform: rotate(135deg);
+}
+
+/*
+- #AAB622 Grün für Schrift
+
+- #F0F4D9 Grün für Flächen (sehr hell)
+- #B8CC24 Grün für Logo, Flächen & andere Stilelemente (satt)
+- #004B67 Blau für Text & andere Stilelemente (satt, dunkel)
+
+- #51A4B6 Sekundärfarbe (Türkis)
+- #A2C8D3 Sekundärfarbe (Hellblau)
+- #FF6600 Sekundärfarbe (Orange)
+*/
+
+
+
+
+* {
+	box-sizing: border-box;
+}
+
+/* Create 3 equal columns that floats next to each other */
+.column {
+	float: left;
+	width: 33%;
+	padding: 0px;
+}
+
+/* Create 3 equal columns that floats next to each other */
+.column2 {
+	float: left;
+	width: 50%;
+	padding: 0px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+
+/* for modal top x table */
+
+#myModalTable {
+	font-family: Arial, Helvetica, sans-serif;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#myModalTable td, #myModalTable th {
+	border: 1px solid #ddd;
+	padding: 8px;
+}
+
+#myModalTable tr:nth-child(even){background-color: #f2f2f2;}
+#myModalTable tr:nth-child(odd){background-color: #cccccc;}
+
+#myModalTable tr:hover {background-color: #4fb4dd;}
+
+#myModalTable th {
+	padding-top: 12px;
+	padding-bottom: 12px;
+	text-align: left;
+	background-color: #997b0a;
+	color: white;
+}
