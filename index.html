@@ -30,8 +30,6 @@
 		})(window,document,'//static.hotjar.com/c/hotjar-','.js?sv='); */
 	</script>
 
-	<link href="ratekit/css/ratekit.min.css" type="text/css" rel="stylesheet">
-
 	<script src="js/leaflet-1.6.0/leaflet.js"></script>
 	<link rel="stylesheet" href="js/leaflet-1.6.0/leaflet.css" />
 
@@ -92,95 +90,6 @@
 	}
 </script>
 
-<!-- modal table for top 10 -->
-<div id="myModalTableDiv" class="modal">
-	<span class="close" id="myModalTableClose">&times;</span>
-	<div style="width: 80%; margin: 0 auto;">
-		<table id="myModalTable" style="margin: 0 auto;">
-			<tr>
-				<th id="table-top-h-1">Problemstelle</th>
-				<th id="table-top-h-2">Typ</th>
-				<th id="table-top-h-3">Beschreibung</th>
-				<th id="table-top-h-4">Dringlichkeit (1 - 5)</th>
-			</tr>
-			<tr>
-				<td id="table-top-1-1">.</td>
-				<td id="table-top-1-2">.</td>
-				<td id="table-top-1-3">.</td>
-				<td id="table-top-1-4">.</td>
-			</tr>
-			<tr>
-				<td id="table-top-2-1">.</td>
-				<td id="table-top-2-2">.</td>
-				<td id="table-top-2-3">.</td>
-				<td id="table-top-2-4">.</td>
-			</tr>
-			<tr>
-				<td id="table-top-3-1">.</td>
-				<td id="table-top-3-2">.</td>
-				<td id="table-top-3-3">.</td>
-				<td id="table-top-3-4">.</td>
-			</tr>
-			<tr>
-				<td id="table-top-4-1">.</td>
-				<td id="table-top-4-2">.</td>
-				<td id="table-top-4-3">.</td>
-				<td id="table-top-4-4">.</td>
-			</tr>
-			<tr>
-				<td id="table-top-5-1">.</td>
-				<td id="table-top-5-2">.</td>
-				<td id="table-top-5-3">.</td>
-				<td id="table-top-5-4">.</td>
-			</tr>
-			<tr>
-				<td id="table-top-6-1">.</td>
-				<td id="table-top-6-2">.</td>
-				<td id="table-top-6-3">.</td>
-				<td id="table-top-6-4">.</td>
-			</tr>
-			<tr>
-				<td id="table-top-7-1">.</td>
-				<td id="table-top-7-2">.</td>
-				<td id="table-top-7-3">.</td>
-				<td id="table-top-7-4">.</td>
-			</tr>
-			<tr>
-				<td id="table-top-8-1">.</td>
-				<td id="table-top-8-2">.</td>
-				<td id="table-top-8-3">.</td>
-				<td id="table-top-8-4">.</td>
-			</tr>
-			<tr>
-				<td id="table-top-9-1">.</td>
-				<td id="table-top-9-2">.</td>
-				<td id="table-top-9-3">.</td>
-				<td id="table-top-9-4">.</td>
-			</tr>
-			<tr>
-				<td id="table-top-10-1">.</td>
-				<td id="table-top-10-2">.</td>
-				<td id="table-top-10-3">.</td>
-				<td id="table-top-10-4">.</td>
-			</tr>
-		</table>
-	</div>
-	<div class="modal-caption" id="myModalTableCaption"></div>
-</div>
-
-<script>
-	// close handlers for modal table
-	$( "#myModalTableDiv" ).click(function(e) {
-		if (e.target.id == "myModalTable" || $(e.target).parents("#myModalTable").length) {
-		} else {
-			document.getElementById("myModalTableDiv").style.display = "none";
-		}
-	});
-	$( "#myModalTableClose" ).click(function() {
-		document.getElementById("myModalTableDiv").style.display = "none";
-	});
-
-</script>
 
 	<div id="map"></div>
 	<div id="radlobby-logo">
@@ -272,7 +181,7 @@
 					<span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>Nutzungsrechte
 				</h1>
 				<p>
-					Diese Karte basiert auf der <a href="https://www.radlkarte.at" target="_blank">Radlobby Radlkarte</a>, die open source und damit frei verfügbar auf <a href="https://github.com/markusstraub/radlkarte" target="_blank">Github</a> (Apache Lizenz 2.0) ist. Die Bewertungsfunktion basiert auf <a href="https://ratekit.com/" target="_blank">RateKit</a>, das unter GPL steht.
+					Diese Karte basiert auf der <a href="https://www.radlkarte.at" target="_blank">Radlobby Radlkarte</a>, die open source und damit frei verfügbar auf <a href="https://github.com/markusstraub/radlkarte" target="_blank">Github</a> (Apache Lizenz 2.0) ist.
 				</p>
 				<h2>Daten</h2>
 				<p>
@@ -337,6 +246,5 @@
 		});
 	}
 </script>
-<script src="ratekit/js/ratekit.min.js"></script>
 </body>
 </html>

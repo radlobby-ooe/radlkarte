@@ -236,20 +236,6 @@ function getLueckeTexts(geometry, properties) {
         relatedArticles +
         scrollMenuText +
         streetViewString+
-        '<div class="rating-gui" style="background: #dddddd;padding-top:5px;min-height: 50px;min-width: 300px" title="Wie wichtig ist Ihnen die Behebung dieser Problemstelle?">\n' +
-        '    <div class="column" style="align: center; text-align: center;vertical-align: center">\n' +
-        '        <button type="button" class="rating-button" data-rating-value="1" data-rating-id="'+ id + '">Eher<br/>egal</button>' +
-        '    </div>\n' +
-        '    <div class="column red" style="align: center; text-align: center;display: flex;justify-content: center;">\n' +
-        '        <input id='+ id + ' class="rating" data-size="xs" data-show-label="true" data-step="1" type="text" />'+
-        '    </div>\n' +
-        '    <div class="column" style="align: center; text-align: center;">\n' +
-        '        <button type="button" class="rating-button" data-rating-value="5" data-rating-id="'+ id + '"/>Dringend<br/>beheben!</button>' +
-        '    </div>\n' +
-        '<div style="text-align: center; font-size: smaller;">   Bewertungen: <span class="rating-count">?</span></div>'+
-        '</div>'+
-        //"<div style='background: #dddddd;;margin-top:5px; text-align:center'>Eher egal &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nervt mich!</div>"+
-        //"<div class='red' style='background: #dddddd; text-align:center;display: flex;justify-content: center;' title='Wie wichtig ist Ihnen die Behebung dieser Problemstelle?'><input id='" + id + "' class='rating' data-size='xs'></div>"+
         "";
 
 
