@@ -173,7 +173,7 @@ function getLueckeTexts(geometry, properties) {
     if (properties.Typ === "Dooring") {
         relatedTopicArticle = "https://www.radlobby.at/alarmierende-studie-zur-dooring-gefahr";
     } else if (properties.Typ === "Lücke") {
-        relatedTopicArticle = "http://ooe.radlobby.at/cms/index.php?id=265";
+        relatedTopicArticle = "http://ooe.radlobby.at/cms/index8eeb.html?id=265";
     }
 
     let relatedHomepageArticle = "";
