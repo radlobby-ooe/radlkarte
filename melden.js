@@ -168,17 +168,17 @@ function initializeMelden() {
             }).on('popupopen', function (popup) {
             setDrawGeometry(popup.sourceTarget.toGeoJSON());
             document.getElementById('describeGF').onclick = function () {
-                let pos = encodeURIComponent(JSON.stringify(getDrawGeometry()));
+                let pos = encodeURIComponent(JSON.stringify(getDrawGeometry().geometry));
                 let newUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSdGOOoSioi46-auNoHvbUVyhrNDCR35rlVl8KHV5Rw9NtgpgQ/viewform?usp=pp_url&entry.1646312533=' + pos;
                 window.open(newUrl);
             };
             document.getElementById('describeF').onclick = function () {
-                let pos = encodeURIComponent(JSON.stringify(getDrawGeometry()));
+                let pos = encodeURIComponent(JSON.stringify(getDrawGeometry().geometry));
                 let newUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSe6LSipRxsvMv4fpCy5COBmJ4Cd1wVbQyoPZHttpXJQUfQrLA/viewform?usp=pp_url&entry.1646312533=' + pos;
                 window.open(newUrl);
             };
             document.getElementById('describeM').onclick = function () {
-                let pos = encodeURIComponent(JSON.stringify(getDrawGeometry()));
+                let pos = encodeURIComponent(JSON.stringify(getDrawGeometry().geometry));
                 window.open('mailto:linz@radlobby.at?subject=Problemstelle melden bei (Bitte Straße angeben)&body=(Bitte Problem beschreiben) GPS-Position ' + pos);
             };
 
@@ -200,6 +200,20 @@ function setDrawGeometry(geo) {
 
 function getDrawGeometry() {
     return selectedDrawGeometry;
+}
+
+
+
+let showGeoCopyButton = document.cookie.indexOf("jirabutton=true") !== -1;
+
+function copyGeometry() {
+    let clipText = JSON.stringify(getDrawGeometry().geometry);
+    navigator.clipboard.writeText(clipText).then(function() {
+        rkGlobal.leafletMap.closePopup();
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+        alert(' Could not copy text, please copy manually: '+clipText);
+    });
 }
 
 let htmlMeldenText = '<div style="margin-top: 10px;width: 300px;">\n' +
@@ -224,6 +238,7 @@ let htmlMeldenText = '<div style="margin-top: 10px;width: 300px;">\n' +
     '            <div style="align: center; text-align: center;">Mail<br/>&nbsp;</div>\n' +
     '        </button>\n' +
     '    </div>\n' +
+    (showGeoCopyButton?'<div style="align:center; text-align: center;">&nbsp;<br/><a onclick="copyGeometry()" href="#" title="Klicken, um die Geometrie der gezeichneten Problemstelle in die Zwischenablage zu kopieren.">Geometrie kopieren</a></div>':"")+
     '<div>&nbsp;<br/>' +
     '    <div style="font-size:smaller; text-align: center;">Die von Ihnen gezeichnete Strecke/Stelle bleibt nicht permanent in der Karte. Sie dient nur zur Eingabe an das Meldeformular.</div>\n' +
     '</div>' +
