@@ -131,6 +131,12 @@ function initializePSIcons() {
         iconAnchor: [5, 5],
         popupAnchor: [0, -5]
     });
+    psGlobal.icons["Verparkt"] = L.icon({
+        iconUrl: 'css/verparkt.svg',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        opacity: 0.5
+    });
     psGlobal.icons["Lücke"] = L.icon({
         iconUrl: 'css/luecke.svg',
         iconSize: [30, 30],
@@ -416,6 +422,13 @@ function removeProblemstellenSegmentsAndMarkers() {
     rkGlobal.leafletMap.removeLayer(psGlobal.markerLayerHighZoom);
     psGlobal.markerLayerHighZoom.clearLayers();
 }
+function getIcon(problemstellenTyp) {
+    if (typeof psGlobal.icons[problemstellenTyp] == 'undefined') {
+        return psGlobal.icons["Allgemein"];
+    } else {
+        return psGlobal.icons[problemstellenTyp];
+    }
+}
 
 function createProblemstellenMarkerLayers(geojsonPoint, callForMarker) {
     let markers = {
@@ -424,7 +437,7 @@ function createProblemstellenMarkerLayers(geojsonPoint, callForMarker) {
             id: geojsonPoint.properties.Id
         }),
         highZoom: L.marker(L.geoJSON(geojsonPoint).getLayers()[0].getLatLng(), {
-            icon: psGlobal.icons[geojsonPoint.properties.Typ],
+            icon: getIcon(geojsonPoint.properties.Typ),
             id: geojsonPoint.properties.Id
         })
     };
