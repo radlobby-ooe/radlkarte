@@ -209,7 +209,7 @@ let showGeoCopyButton = document.cookie.indexOf("jirabutton=true") !== -1;
 function copyGeometry() {
     let clipText = JSON.stringify(getDrawGeometry().geometry);
     navigator.clipboard.writeText(clipText).then(function() {
-        rkGlobal.leafletMap.closePopup();
+        //rkGlobal.leafletMap.closePopup();
     }, function(err) {
         console.error('Could not copy text: ', err);
         alert(' Could not copy text, please copy manually: '+clipText);
