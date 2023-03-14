@@ -8,8 +8,8 @@ html, body, #map {
 }
 #radlobby-logo {
 	position: fixed;
-	right: 0px;
-	bottom: 10px;
+	left: 40px;
+	bottom: 30px;
 	z-index: 900;
 }
 #radlobby-logo img {

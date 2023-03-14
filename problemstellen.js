@@ -38,13 +38,13 @@ function updatePSControl() {
     }
     let rkChecked = rkGlobal.rkShown;
     let html = '<form><input id="rkToggleCheckbox" type="checkbox" ' + (rkChecked ? "checked" : "") + ' onClick="rkToggleCheckboxClicked()"/>Radlkarte'
-        +'<input id="nvToggleCheckbox" type="checkbox" ' + (rkChecked ? "" : "") + ' onClick="nvToggleCheckboxClicked()"/>Netzvorschlag';
+        +'<input id="nvToggleCheckbox" type="checkbox" ' + (rkChecked ? "" : "") + ' onClick="nvToggleCheckboxClicked()"/>Netzvorschlag<br/>';
     if ((psGlobal.problemStellenFile != null) && (psGlobal.problemStellenFile.length !== 0)) {
-        html += '&nbsp;<input id="psToggleCheckbox" type="checkbox" checked onClick="psToggleCheckboxClicked()"/>Problemstellen ';
+        html += '<input id="psToggleCheckbox" type="checkbox" checked onClick="psToggleCheckboxClicked()"/>Problemstellen ';
     } else {
         setPSSubControlHidden(true);
     }
-    div.innerHTML = html + "<form/>";
+    div.innerHTML = "<div style='margin-left: 30px;'>" + html + "<form/></div>";
 }
 
 
@@ -73,10 +73,10 @@ function updatePSSubControl() {
                 }
             }
 
-            cbs = cbs + '<input id="psToggleCheckbox' + typ + '" type="checkbox" checked onClick="psSubToggleCheckboxClicked()"/> ' + typ + ' (' + sum + ')&nbsp;';
+            cbs = cbs + '<input id="psToggleCheckbox' + typ + '" type="checkbox" checked onClick="psSubToggleCheckboxClicked()"/> ' + typ + ' (' + sum + ')<br/>';
         }
         div.innerHTML =
-            '<div style="margin-left: 20px;"><form>' + cbs + '<form/></div>';
+            '<div style="margin-left: 50px;"><form>' + cbs + '<form/></div>';
     }
 }
 
