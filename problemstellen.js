@@ -37,7 +37,8 @@ function updatePSControl() {
         rkGlobal.rkShown = false;
     }
     let rkChecked = rkGlobal.rkShown;
-    let html = '<form><input id="rkToggleCheckbox" type="checkbox" ' + (rkChecked ? "checked" : "") + ' onClick="rkToggleCheckboxClicked()"/>Radlkarte';
+    let html = '<form><input id="rkToggleCheckbox" type="checkbox" ' + (rkChecked ? "checked" : "") + ' onClick="rkToggleCheckboxClicked()"/>Radlkarte'
+        +'<input id="nvToggleCheckbox" type="checkbox" ' + (rkChecked ? "" : "") + ' onClick="nvToggleCheckboxClicked()"/>Netzvorschlag';
     if ((psGlobal.problemStellenFile != null) && (psGlobal.problemStellenFile.length !== 0)) {
         html += '&nbsp;<input id="psToggleCheckbox" type="checkbox" checked onClick="psToggleCheckboxClicked()"/>Problemstellen ';
     } else {
@@ -93,6 +94,11 @@ function isRkToggleCheckboxChecked() {
     return (checkBox != null) && checkBox.checked;
 }
 
+function isNvToggleCheckboxChecked() {
+    let checkBox = document.getElementById("nvToggleCheckbox");
+    return (checkBox != null) && checkBox.checked;
+}
+
 function psToggleCheckboxClicked() {
     if (isPsToggleCheckboxChecked()) {
         setPSSubControlHidden(false);
@@ -105,8 +111,26 @@ function psToggleCheckboxClicked() {
 
 function rkToggleCheckboxClicked() {
     if (isRkToggleCheckboxChecked()) {
+        let checkBox = document.getElementById("nvToggleCheckbox");
+        if (checkBox != null) { checkBox.checked=false; }
+
+        removeAllSegmentsAndMarkers();
         loadGeoJson(rkGlobal.currentGeoJsonFile);
     } else {
+        debug("removeAllSegmentsAndMarkers");
+        removeAllSegmentsAndMarkers();
+    }
+}
+
+function nvToggleCheckboxClicked() {
+    if (isNvToggleCheckboxChecked()) {
+        let checkBox = document.getElementById("rkToggleCheckbox");
+        if (checkBox != null) { checkBox.checked=false; }
+
+        removeAllSegmentsAndMarkers();
+        loadGeoJson("data/netzvorschlag-linz.geojson");
+    } else {
+        debug("removeAllSegmentsAndMarkers");
         removeAllSegmentsAndMarkers();
     }
 }
